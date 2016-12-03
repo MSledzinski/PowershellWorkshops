@@ -55,11 +55,12 @@ function Get-WithoutHandling
 
         process
         {
-         Get-Service $Name -ErrorVariable err | Select-Object -Property Name,Status
+         Get-Service $Name -ErrorVariable err -ErrorAction SilentlyContinue | Select-Object -Property Name,Status
+         Write-Error $err
     }
 }
-
-@('EventLog','BadServiceName','WinRM') | Get-WithoutHandling -ErrorAction Continue -ErrorVariable err | Format-Table
+ $err=@()
+@('EventLog','BadServiceName','WinRM') | Get-WithoutHandling -ErrorAction SilentlyContinue -ErrorVariable err | Format-Table
 
 $err
 

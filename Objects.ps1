@@ -91,7 +91,14 @@ $contentXml.DocumentElement.ChildNodes[0].InnerText
 
 
 # New-Object
-# from hashtable
+# Add-Member method
+
+$object = New-Object –TypeName PSObject
+$object | Add-Member –MemberType NoteProperty –Name MyProperty –Value SomeValue
+
+$object
+
+# From hashtable
 
 $objectProperties = @{ A=1;B=2;C="text" }
 
@@ -113,7 +120,8 @@ $object3 | Format-Table -AutoSize
 ###################
 
 #new way of creating objects
-
+# problem for now - often there is win 2k12 without ps5 
+# class canot be defined inside pipline - so annonymous objects have this adentage
 class Sample
 {
     [int]$value

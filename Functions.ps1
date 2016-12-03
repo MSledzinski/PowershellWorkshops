@@ -9,6 +9,7 @@ function Get-StuffWithParams([string]$parameter)
     "Stuff" + $parameter
 }
 #endregion
+# talk about scopes Global: Script: Private:
 
 #region Advanved
 function Get-DataBasic
