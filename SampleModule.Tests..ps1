@@ -1,1 +1,0 @@
-﻿$currentPath = Split-Path -Parent $MyInvocation.MyCommand

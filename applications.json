@@ -1,0 +1,14 @@
+{
+    "applications":[
+        {
+            "name" : "PSWorkshkopApp",
+            "registryKey": "PSWorkshopApp",
+            "otherStting": 42
+        },
+        {
+            "name" : "PsAnotherServiceApp",
+            "registryKey" : "PSWorkshopServie",
+            "otherSetting" : 44
+        }
+    ]
+}

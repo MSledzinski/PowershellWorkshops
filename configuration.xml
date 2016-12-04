@@ -1,0 +1,10 @@
+<configuration>
+        <smtp>
+            <server>localhost</server>
+            <port>25</port>
+            <user>sender</user>
+            <!-- password best practices not in workshop scope -->
+            <password>password1</password>
+            <to>admin@support.com</to>
+        </smtp>
+</configuration>

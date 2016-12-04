@@ -66,3 +66,7 @@ Invoke-Command -cn serverName {param($class) Get-WmiObject -class $class} -Argum
 Get-WmiObject Win32_USBControllerDevice  |fl Antecedent,Dependent
 
 # bootsrap project modules in profile
+
+# web-request
+Invoke-WebRequest -UseBasicParsing 
+Invoke-RestMethod -UseBasicParsing

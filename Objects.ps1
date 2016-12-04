@@ -99,19 +99,19 @@ $object | Add-Member –MemberType NoteProperty –Name MyProperty –Value Some
 $object
 
 # From hashtable
-
+# PSCustomObject and PsObject - are aliases for the same type, almost... PSCustomObject is more clever during creation
 $objectProperties = @{ A=1;B=2;C="text" }
 
 $object = New-Object -TypeName PSObject -Property $objectProperties
 
 $object | Format-Table -AutoSize
 
-$object2 = [PSObject]$objectProperties
+$object2 = [PSCustomObject]$objectProperties
 $object2 | Format-Table -AutoSize
 
 # if I want to keep proiperty oreder
 
-$object3 = [PSObject][Ordered]@{ A=1;B=2;C="text" } #on hashtable only
+$object3 = [PSCustomObject][Ordered]@{ A=1;B=2;C="text" } #on hashtable only
 $object3 | Format-Table -AutoSize
 
 
