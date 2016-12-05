@@ -4,12 +4,10 @@
     [OutputType([PSObject])]
     param(
         [Parameter(Mandatory)]
-        [string]$ConfigurationPathRoot = 'C:\Projects\PsWorkshop\'
+        [string]$ConfigurationFilePath
     )
 
-    $filePath = Join-Path $ConfigurationPathRoot 'applications.json'
-
-    $content = Get-Content -Path $filePath | ConvertFrom-Json
+    $content = Get-Content -Path $ConfigurationFilePath | ConvertFrom-Json
     
    foreach($application in $content.applications)
    {
@@ -80,4 +78,27 @@ function Search-PSWspApplicationError
     }
 }
 
-Export-ModuleMember -Function Search-PSWspApplicationError
+function Send-MailIfErrors
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$AppConfigurationPath,
+
+        [Parameter(Mandatory)]
+        [string]$SmtpConfigurationPath,
+
+        [Paramter(Mandatory)]
+        [int]$treshold
+    )
+    
+    Import-Module MailSender
+
+    Get-PSWsApplicationsToCheck -ConfigurationFilePath $AppConfigurationPath | 
+    Search-PSWspApplicationError 
+    Out-ErrorEventMail -ConfigurationFilePath $SmtpConfigurationPath
+
+}
+
+
+Export-ModuleMember -Function Search-PSWspApplicationError, Send-*

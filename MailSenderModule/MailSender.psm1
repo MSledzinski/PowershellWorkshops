@@ -18,42 +18,58 @@ function Get-MachineName
 }
 
 function Get-SmptConfiguration
-{
-    
+{    
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [string]$Path)
+
+    $configurationData = [xml](Get-Content -Path $Path)
+
+    [PSCustomObject][Ordered]@{
+        Server = $configurationData.DocumentElement.smtp.server
+        Port = [int]$configurationData.DocumentElement.smtp.port
+        To = $configurationData.DocumentElement.smtp.to
+    }
 }
 
+# it is absolutelty not production ready function - no TLS, user/pass etc.!
 function Send-Mail
 {  
-        $emailBody += [System.Environment]::NewLine
-   
-        $emailBody += ((Get-MachineInfo) + [System.Environment]::NewLine)
+     [CmdletBinding()]
+        param(
+            [Parameter(Mandatory, ValueFromPipeline)]
+            [string]$Content,
+        
+            [Parameter(Mandatory)]
+            [string]$ConfigurationFilePath
+        )
 
-        $configurationData = [xml](Get-Content -Path 'C:\Projects\PsWorkshop\configuration.xml')
-
-        $SmtpServer = $configurationData.DocumentElement.smtp.server
-        $SmtpServerPort = $configurationData.DocumentElement.smtp.port
+        $configurationData = Get-SmptConfiguration $ConfigurationFilePath
 
         $Message = New-Object System.Net.Mail.MailMessage
 
         $Message.From = "notifier@company.com"
-        $Message.To.Add("Destination@domain.com")
+        $Message.To.Add($configurationData.To)
         $Message.Subject = "[$(Get-MachineName)] Error events!"
         $Message.IsBodyHtml = $false
-        $Message.Body = $emailBody
+        $Message.Body = $Content
 
-        $SmtpClient = New-Object System.Net.Mail.SmtpClient($SmtpServer, $SmtpServerPort)
+        $SmtpClient = New-Object System.Net.Mail.SmtpClient($configurationData.Server, $configurationData.Port)
 
         $SmtpClient.Send($Message) 
 }
 
-# it is absolutelty not production ready function - no TLS, user/pass etc.!
 function Out-ErrorEventMail
 {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory, ValueFromPipeline)]
+        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'Stream')]
         [string]$Item,
-        
+              
+        [Parameter(Mandatory, ParameterSetName = 'Object')]
+        [string[]]$InputObject,
+
         [Parameter(Mandatory)]
         [string]$ConfigurationFilePath
     )
@@ -65,8 +81,23 @@ function Out-ErrorEventMail
 
     Process {
 
-        $anything = $True
-        $emailBody += ($Item + [System.Environment]::NewLine)
+        if ($PSCmdlet.ParameterSetName -eq 'Object')
+        {
+            $anything = $True
+            foreach($line in $InputObject)
+            {
+                $emailBody += ($line + [System.Environment]::NewLine)
+            }
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq 'Stream')
+        {
+            $anything = $True
+            $emailBody += ($Item + [System.Environment]::NewLine)
+        } 
+        else 
+        {
+            throw 'Unrecognized paraters set'    
+        }
     }
 
     End {
@@ -74,27 +105,11 @@ function Out-ErrorEventMail
         {
             return
         }
-        
+
         $emailBody += [System.Environment]::NewLine
-   
         $emailBody += ((Get-MachineInfo) + [System.Environment]::NewLine)
 
-        $configurationData = [xml](Get-Content -Path 'C:\Projects\PsWorkshop\configuration.xml')
-
-        $SmtpServer = $configurationData.DocumentElement.smtp.server
-        $SmtpServerPort = $configurationData.DocumentElement.smtp.port
-
-        $Message = New-Object System.Net.Mail.MailMessage
-
-        $Message.From = "notifier@company.com"
-        $Message.To.Add("Destination@domain.com")
-        $Message.Subject = "[$(Get-MachineName)] Error events!"
-        $Message.IsBodyHtml = $false
-        $Message.Body = $emailBody
-
-        $SmtpClient = New-Object System.Net.Mail.SmtpClient($SmtpServer, $SmtpServerPort)
-
-        $SmtpClient.Send($Message) 
+        Send-Mail -content $emailBody -configurationFilePath $ConfigurationFilePath
     }
 }
 

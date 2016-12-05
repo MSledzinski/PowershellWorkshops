@@ -17,6 +17,9 @@ Get-ChildItem -Path Cert:\LocalMachine -Recurse |
 Set-Location SQLServer:
 Set-Location HKLM:
 
+# join-path to avoind checking for /
+Join-Path 'c:/temp/' '\folder\aa.txt'
+Join-Path 'c:/temp/' 'folder\aa.txt'
 
 # WinRM - complex topic - but easy to setup inside a domain (+kerberos)
 # PSExec

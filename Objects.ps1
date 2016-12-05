@@ -3,20 +3,42 @@
 # remember there is .net underneath
 # always  return object not display (ft, fl already there)
 
-[int]$int
-[string]$string
-[datetime]$datetime = Get-Date
-[bool]$bool
-[array]$array
+# [string]    Fixed-length string of Unicode characters
+# [char]      A Unicode 16-bit character
+# [byte]      An 8-bit unsigned character
+
+# [int]       32-bit signed integer
+# [long]      64-bit signed integer
+# [bool]      Boolean True/False value
+
+# [decimal]   A 128-bit decimal value
+# [single]    Single-precision 32-bit floating point number
+# [double]    Double-precision 64-bit floating point number
+# [DateTime]  Date and Time
+
+# [xml]       Xml object
+# [array]     An array of values
+# [hashtable] Hashtable object
 
 $null
 
 $null -eq $null
 
-# help about_objects
+
+43 -is [int]
+
+[string]$str = [char]0x263a
+$str
+
+$true -is [bool]
+
+$true -eq $false
+
+# Everything is object in PS
+
 Get-Process #output is customized
 
-Get-Process | Get-Member | Format-Table
+Get-Process | Get-Member | Format-Table 
 Get-Process | Get-Member -MemberType Properties | Format-Table
 
 #Get-Process | gm
@@ -58,7 +80,10 @@ notepad 'C:\Temp\proc_dump.txt'
 #################################
 
 # Extending object members
+# when input does not match output
+
 # @{ Name = <property name>; Expression={<expression>}}
+
 Get-Process |
     Where-Object { $_.StartTime -gt (Get-Date).AddHours(-1) } |
     Select-Object -Property Id,Name,Starttime,@{Name="Runtime";Expression={(Get-Date) - $_.StartTime}} |

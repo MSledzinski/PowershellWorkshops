@@ -23,15 +23,6 @@ Describe -Tags ('Unit', 'Acceptance') "$module Tests" {
 
             $errors.Count | Should Be 0
         }
-
-#        It "has correct code style" {
-#            #Install-Module PsScriptAnalyzer
-#
-#            Import-Module PsScriptAnalyzer
-#
-#            $errors = Invoke-ScriptAnalyzer -Path $moduleFile 
-#            $errors | Should Be $null
-#        }
     }
 
 # endregion
