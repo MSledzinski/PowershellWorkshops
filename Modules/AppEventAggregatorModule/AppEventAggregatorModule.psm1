@@ -63,9 +63,7 @@ function Search-PSWspApplicationError
 
     process 
     {
-        [string]$registryEntry = "HKLM:/Software/$RegsitryKey"
-
-        [string]$applicationLogName = Get-ItemProperty -Path $registryEntry | Select-Object -ExpandProperty AppLogName
+        [string]$applicationLogName = Get-ItemProperty -Path "HKLM:/Software/$RegsitryKey" | Select-Object -ExpandProperty AppLogName
 
         [PSObject[]]$systemEvents = Get-EventsFromLast24h 'System' | Where-Object { $_.Message -like "*$ApplicationName*" } 
 
@@ -97,7 +95,6 @@ function Send-MailIfErrors
     Get-PSWsApplicationsToCheck -ConfigurationFilePath $AppConfigurationPath | 
     Search-PSWspApplicationError 
     Out-ErrorEventMail -ConfigurationFilePath $SmtpConfigurationPath
-
 }
 
 

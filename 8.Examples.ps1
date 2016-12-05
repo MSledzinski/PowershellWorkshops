@@ -1,8 +1,18 @@
 ﻿# Get-member
 Get-Service | gm
 
+
+
 # Annonymous object tpyes, calculated properties
  Get-Service | Select-Object @{ Name='SN'; Expression={$_.Name}} 
+
+
+
+# Diffrent outputs
+Out-null
+Out-File
+
+
 
 # Providers
 # Set-Item, Get-Item in PSDrive abstraction
@@ -17,9 +27,13 @@ Get-ChildItem -Path Cert:\LocalMachine -Recurse |
 Set-Location SQLServer:
 Set-Location HKLM:
 
+
+
 # join-path to avoind checking for /
 Join-Path 'c:/temp/' '\folder\aa.txt'
 Join-Path 'c:/temp/' 'folder\aa.txt'
+
+
 
 # WinRM - complex topic - but easy to setup inside a domain (+kerberos)
 # PSExec
@@ -28,10 +42,12 @@ $session = Enter-PSSession -ComputerName computername-Credential $cred
 
 
 Exit-PSSession $session
-
 # Get-Service -ComputerName fp-pc2686.fp.lan,computer2,computer3 
 
-# Web
+
+
+
+# Web IIS
 Import-Module WebAdministration
 Get-ChildItem –Path IIS:\AppPools
 
@@ -44,6 +60,7 @@ $scriptBlock = {
     managedRuntimeVersion -Value 'v4.0'
     Remove-WebAppPool -Name $using:appPoolName
 }
+
 Invoke-Command –ComputerName SOMEIISSERVER –ScriptBlock $scriptBlock 
 
 # Splatting
@@ -70,6 +87,47 @@ Get-WmiObject Win32_USBControllerDevice  |fl Antecedent,Dependent
 
 # bootsrap project modules in profile
 
-# web-request
+# Calling web requests
 Invoke-WebRequest -UseBasicParsing 
 Invoke-RestMethod -UseBasicParsing
+
+# Working with SQL
+Invoke-Sqlcmd -Query "SELECT GETDATE() AS TimeOfQuery;" -ServerInstance "localhost" 
+
+Get-Module -ListAvailable -Name Sqlps;
+(Get-Module -ListAvailable -Name Sqlps | Select -First 1).ExportedCommands
+
+# Call WinApi when needed 
+$Signature = @"
+[DllImport("user32.dll")]public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+"@
+$ShowWindowAsync = Add-Type -MemberDefinition $Signature -Name "Win32ShowWindowAsync" -Namespace Win32Functions -PassThru 
+
+# Minimize the Windows PowerShell console
+$ShowWindowAsync::ShowWindowAsync((Get-Process -Id $pid).MainWindowHandle, 2)
+
+# Restore it
+$ShowWindowAsync::ShowWindowAsync((Get-Process -Id $Pid).MainWindowHandle, 4)
+
+# Add .Net code
+$sourceCode = @"
+public class BasicMath
+{
+  public static int AddStatic(int a, int b)
+  {
+        return a + b;
+  }
+
+  public int Add(int a, int b)
+  {
+        return a + b;
+  }
+}
+"@
+
+Add-Type -TypeDefinition $sourceCode 
+
+[BasicMath]::AddStatic(2, 2)
+
+$object = New-Object BasicMath
+$object.Add(5, 2)

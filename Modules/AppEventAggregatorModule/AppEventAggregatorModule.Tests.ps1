@@ -52,13 +52,12 @@ InModuleScope "$module" {
             It "can read defined applications info" {
                 
                 # given
-                $path = 'c:\data\'
                 $file = 'c:\data\applications.json'
 
                 Mock Get-Content { $jsonContent } -ParameterFilter { $Path -eq $file }
 
                 # when
-                $actualApplications = Get-PSWsApplicationsToCheck -configurationPathRoot $path
+                $actualApplications = Get-PSWsApplicationsToCheck -ConfigurationFilePath $file
 
                 # then
                 $actualApplications[0].Name | Should Be 'App1'
