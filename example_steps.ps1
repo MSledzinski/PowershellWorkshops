@@ -10,12 +10,14 @@ Get-Help Get-WinEvent -Online
 # display result - Format-, why bad to display
 # output -> gm -> objects [3]
 
-# example - create pscustomobject on output
+# example - create pscustomobject on output using foreach()
 
 # functions
+
 # make it a function
 
 # pipeline
+# change foreach to |
 
 # handle errors - try catch, write-error
 

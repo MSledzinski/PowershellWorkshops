@@ -205,12 +205,12 @@ function Send-MailIfErrors
         [string]$SmtpConfigurationPath,
 
         [Parameter(Mandatory)]
-        [int]$treshold
+        [int]$Treshold
     )
     
     [PSObject[]]$items = Get-PSWsApplicationsToCheck -ConfigurationFilePath $AppConfigurationPath | Search-PSWspApplicationError 
 
-    if ($items.Length -ge $treshold)
+    if ($items.Length -ge $Treshold)
     {
         Out-ErrorEventMail -ConfigurationFilePath $SmtpConfigurationPath -InputObject $items
     }

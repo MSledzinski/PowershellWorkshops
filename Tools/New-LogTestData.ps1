@@ -1,5 +1,7 @@
 ﻿$eventLogName = 'PSWorkshopService'
+
 $appName = 'PSWorkshopServiceApp'
+
 $healthCheckSource = 'HealthCheckSystem'
 
 if ([System.Diagnostics.EventLog]::SourceExists($healthCheckSource) -eq $false)
