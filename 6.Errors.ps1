@@ -1,20 +1,11 @@
-﻿# when things go bad
+﻿# When things go wrong
 
 Get-Service BadServiceName
-# exception rised inside cmdlet and is written to Error pipeline
 
-# can be modified in scope - but it is dangerous to use it - as it has effect on whole scope
-$ErrorActionPreference 
+# exception written to error pipeline
 
-#Possible values:
-# SilentlyContinue (0) - do not display anything - dangerous
-# Stop (1)
-# Continue (2) [default]
-# Inquire (3)
-# Ignore (4)
 
 #region Handling
-
 # there is Trap - old concept, hard-ish to use, better use try, so we will skip trap { }
 
 function Get-WithHandling
@@ -46,6 +37,16 @@ Write-Host $Error.Count -ForegroundColor Green
 # Write-Error - nonterminating errors
 # throw - terminating errors
 
+# can be modified in scope - but it is dangerous to use it - as it has effect on whole scope
+$ErrorActionPreference 
+
+#Possible values:
+# SilentlyContinue (0) - do not display anything - dangerous
+# Stop (1)
+# Continue (2) [default]
+# Inquire (3)
+# Ignore (4)
+
 function Get-WithoutHandling
 {
     [CmdletBinding()]
@@ -55,16 +56,11 @@ function Get-WithoutHandling
 
         process
         {
-         Get-Service $Name -ErrorVariable err -ErrorAction SilentlyContinue | Select-Object -Property Name,Status
-         Write-Error $err
-    }
+            Get-Service $Name -ErrorAction SilentlyContinue | 
+                                Select-Object -Property Name,Status
+        }
 }
- $err=@()
-@('EventLog','BadServiceName','WinRM') | Get-WithoutHandling -ErrorAction SilentlyContinue -ErrorVariable err | Format-Table
 
-$err
+@('EventLog','BadServiceName','WinRM') | Get-WithoutHandling | Format-Table
 
-# error variable
- $err=@()
- stop-process 13 -ea silentlycontinue -ErrorVariable err
- $err.count
+

@@ -1,27 +1,11 @@
-﻿# objects piped from one commadnto another get-data | convert-data | save-data
+﻿#region Multiple pipelines
 
-# -PassThru switch
-
-#mutliple pipelines
 # ErrorPipeline, WarningPipeline, VerbosePipeline, DebugPipeline
 # not all cmdlets designed to use it
 
 # controlled by preference variables
 
-# output
-Get-Service | Out-File -FilePath 'C:\Temp\service_dump.txt' -Append 
 
-# stream redirection 
-# Stream = value
-# Pipeline (success) =1
-# Errors = 2
-# Warning = 3
-# Verbose = 4
-# Debug = 5
-
-# write >
-# append >>
-# merge >&
 
 function Set-VerboseThings
 {
@@ -34,8 +18,22 @@ function Set-VerboseThings
     Write-Output "from output pipe..."
 }
 
-Set-VerboseThings #-Verbose, -Debug, when Debug show $PSCmdlet
+Set-VerboseThings 
+Set-VerboseThings -Verbose
+Set-VerboseThings -Debug
 
+# stream redirection
+ 
+# Stream = value
+# Pipeline (success) = 1
+# Errors = 2
+# Warning = 3
+# Verbose = 4
+# Debug = 5
+
+# write >
+# append >>
+# merge >&
 # merging example
 Get-WmiObject wind32_logicaldisk 2>err.txt 4>verbose.txt
 
@@ -45,6 +43,7 @@ Get-WmiObject wind32_logicaldisk 2>&1 1>data.txt # any erros and output will be 
 # Sometimes pipeline is not good for given task - better to assign to variable and do ForEach (Enumeration) then pipe
 # performance can be checked with Measure-Command { } 
 
+#endregion
 
 #region Pipeline binding
 
@@ -60,7 +59,7 @@ function Get-VirtualMachineData
         [string]$Name
     )
 
-    [PSCustomObject]@{ 'Name' = $name; 'Host' = 'HyperV1'; 'Type' = 'VM' }
+    [PSCustomObject]@{ 'Name' = $name; 'VHost' = 'HyperV1'; 'Type' = 'VM' }
 }
 
 function Set-VirtualMachineData1
@@ -69,12 +68,27 @@ function Set-VirtualMachineData1
     param
     (
         [Parameter(Mandatory,ValueFromPipeline)]
-        [PSCustomObject]$InputObject
+        [PSObject]$InputObject
     )
     
     process
     {
-        Write-Host "$($InputObject.Name) on $($InputObject.Host)"
+        Write-Host "$($InputObject.Name) on $($InputObject.VHost)"
+    }
+}
+
+function Set-VirtualMachineData1_5
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory,ValueFromPipeline)]
+        [int]$InputObject
+    )
+    
+    process
+    {
+        Write-Host "$($InputObject) passed"
     }
 }
 
@@ -83,17 +97,16 @@ function Set-VirtualMachineData2
     [CmdletBinding()]
     param
     (
-        [Parameter(ValueFromPipeline)]
-        [PSCustomObject]$FirstObject,
-        
-        [Parameter(ValueFromPipeline)]
-        [System.IO.FileInfo]$SecondObject
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+        [string]$Name,
+
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+        [string]$VHost
     )
     
     process
     {
-        Write-Host "Machine: $($FirstObject.Name) on Host: $($FirstObject.Host)"
-        Write-Host "Machine: $($SecondObject.Name) on Host: $($SecondObject.Host)"
+        Write-Host "Machine: $Name on Host: $VHost"
     }
 }
 
@@ -102,23 +115,38 @@ function Set-VirtualMachineData3
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
-        [string]$Name
+        [Parameter(ValueFromPipeline)]
+        [PSObject]$FirstObject,
+        
+        [Parameter(ValueFromPipeline)]
+        [System.IO.FileInfo]$SecondObject
     )
     
     process
     {
-        Write-Host "Value $Name"
+        Write-Host "Machine: $($FirstObject.Name) on Host: $($FirstObject.VHost)"
+        Write-Host "Machine: $($SecondObject.Name) on Host: $($SecondObject.VHost)"
     }
 }
 
+
 Get-VirtualMachineData -Name 'Machine1' | Get-Member
 
+# step 1 - has input with type
+Get-VirtualMachineData -Name 'Machine1' | Set-VirtualMachineData1
+
+# step 2 - or can I cast it
+"aaaaa" | Set-VirtualMachineData1 # PS is able to case object -> PSObject
+Get-VirtualMachineData -Name 'Machine1'| Set-VirtualMachineData1_5 # but not PSObject -> string
+
+# step 3 - by property
 Get-VirtualMachineData -Name 'Machine1' | Set-VirtualMachineData2
 
-Get-Item 'c:\Windows\notepad.exe' | Set-VirtualMachineData2 #danger - type coersion, as PSObject is generic
+#danger - type coersion, as PSObject is generic
+# FileInfo
+Get-Item 'c:\Windows\notepad.exe' | Set-VirtualMachineData3 
 
-Get-VirtualMachineData -Name 'Machine1' | Set-VirtualMachineData3
+
 
 #endregion
 
@@ -153,3 +181,4 @@ function Set-ManyThings
 
 'abc','def','xyz' | Set-ManyThings
 #endregion
+

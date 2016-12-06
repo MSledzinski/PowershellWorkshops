@@ -7,6 +7,10 @@ Get-Service | gm
  Get-Service | Select-Object @{ Name='SN'; Expression={$_.Name}} 
 
 
+# Manipulate pipe
+Get-Service | Select-Object -First 1 # top 1
+Get-Service | Where-Object { } | ForEach-Object {} | Tee-Object {} | Group-Object {}
+
 
 # Diffrent outputs
 Out-null

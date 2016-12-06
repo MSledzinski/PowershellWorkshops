@@ -1,4 +1,4 @@
-﻿# module is currently implementing 2 functinalities - events aggregator and mail sender
+﻿# module is currently implementing 2 functionalities - events aggregator and mail sender
 # it should be split into two
 # it is implemented in one for simplicity
 
@@ -6,7 +6,6 @@
 function Get-PSWsApplicationsToCheck
 {
     [CmdletBinding()]
-    [OutputType([PSObject])]
     param(
         [Parameter(Mandatory)]
         [string]$ConfigurationFilePath
@@ -23,7 +22,6 @@ function Get-PSWsApplicationsToCheck
 function Get-EventsFromLast24h
 {
     [CmdletBinding()]
-    [OutputType([PSObject[]])]
     param(
         [Parameter(Mandatory)]
         [string]$LogName
@@ -53,7 +51,6 @@ function Throw-WhenRegistryPathNotExist
 function Search-PSWspApplicationError
 {
     [CmdletBinding()]
-    [OutputType([PSObject])]
     param(
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]$Name,

@@ -1,7 +1,11 @@
-﻿# powersehll object nature - one of the main paradigm
-# object based managment engine -> cmdlets and pipline are using it heavily
+﻿#region Introduction Types
+
+# powersehll object nature - one of the main paradigm shift from cmd/bash
+
+# object based management engine -> cmdlets and pipline are using it 
+
 # remember there is .net underneath
-# always  return object not display (ft, fl already there)
+# always return object not display (ft, fl already there)
 
 # [string]    Fixed-length string of Unicode characters
 # [char]      A Unicode 16-bit character
@@ -34,28 +38,39 @@ $true -is [bool]
 
 $true -eq $false
 
-# Everything is object in PS
+#endregion
 
-Get-Process #output is customized
+
+#region Everything is an object
+
+# symbol | means pipeline -> for now assume that there is 'magic' transition from output ot next input
+# help drawing of 'lazy' stream
+
+Get-Process #output is customized, not raw objects
 
 Get-Process | Get-Member | Format-Table 
-Get-Process | Get-Member -MemberType Properties | Format-Table
 
-#Get-Process | gm
-
+# Get-Process | gm
 # AliasProperty, Property, PropertySet, ScriptProperties (dynamically calculated), NoteProperty (static), Method
 
-# show all properties
 Get-Process lsass | Select-Object -Property *
-Get-Process lsass | Format-List -Property *
+
 
 # Operations on object
 Get-Command -Noun Object
 
+# select (powerfull command)
+Get-Process | 
+    Select-Object -Property ID,Name,*MemorySize |
+    Select-Object -First 1 
+
 # sort 
 Get-Process | 
     Sort-Object -Property PagedMemorySize -Descending | 
-    Select-Object -Property ID,Name,*MemorySize -First 1 #Last
+    Select-Object -Property ID,Name,*MemorySize 
+
+# foreach
+Get-Process | ForEach-Object { Write-Host "Processing: $($_.Name)" } # not a lot of sense :)
 
 # filter
 Get-Process |
@@ -65,8 +80,9 @@ Get-Process |
 Get-Process | Measure-Object 
 Get-Process | Measure-Object -Property VirtualMemorySize -Sum
 
-# foreach
-Get-Process | ForEach-Object { Write-Host $_.Name } # not a lot of sense :)
+
+# group
+Get-Process | Group-Object -Property Name
 
 # tee
 # really usefull
@@ -75,28 +91,21 @@ notepad 'C:\Temp\proc_dump.txt'
 
 (Get-Process | Select-Object -First 1).PSObject # reflection, well, kind of
 
-#################################
-# Object Extensions and Creation
-#################################
+#endregion
 
-# Extending object members
-# when input does not match output
+
+
+#region  Object Extensions and Creation
 
 # @{ Name = <property name>; Expression={<expression>}}
 
 Get-Process |
-    Where-Object { $_.StartTime -gt (Get-Date).AddHours(-1) } |
-    Select-Object -Property Id,Name,Starttime,@{Name="Runtime";Expression={(Get-Date) - $_.StartTime}} |
+    Select-Object -Property Id,Name,StartTime,@{Name="Runtime";Expression={(Get-Date) - $_.StartTime}} | #ScriptProperty
     Sort-Object -Property Runtime
 
 # CIM/WMI out of scope
-# Get-WmiObject -List
 Get-CimInstance win32_logicaldisk -Filter "drivetype=3" |
-    Format-Table -GroupBy PSComputerName -Property DeviceID,VolumeName,@{N='FreeGB';E={[math]::Round($_.Freespace/1GB,2)}}
-
-
-
-
+    Select-Object -Property DeviceID,VolumeName,@{N='FreeGB';E={[math]::Round($_.Freespace/1GB,2)}} 
 
 
 
@@ -106,9 +115,11 @@ Get-CimInstance win32_logicaldisk -Filter "drivetype=3" |
 [string]$dataString = "abc"
 $datetimeValue = [datetime]'11/11/2016'
 
-# XML is reaaly handy
-[xml]$contentXml = "<root><node>abc</node></root>"
+# XML ... BTW it is realy handy
+$contentXml = [xml]"<root><node>abc</node></root>"
 $contentXml.DocumentElement.ChildNodes[0].InnerText
+$contentXml.root.node
+
 
 # exsiting types that can be 'accelerated'
 [PSOBject].Assembly.GetType("System.Management.Automation.TypeAccelerators")::Get
@@ -119,13 +130,15 @@ $contentXml.DocumentElement.ChildNodes[0].InnerText
 # Add-Member method
 
 $object = New-Object –TypeName PSObject
-$object | Add-Member –MemberType NoteProperty –Name MyProperty –Value SomeValue
+Add-Member -InputObject $object –MemberType NoteProperty –Name MyProperty –Value 1 
 
 $object
+$object | gm
 
 # From hashtable
 # PSCustomObject and PsObject - are aliases for the same type, almost... PSCustomObject is more clever during creation
-$objectProperties = @{ A=1;B=2;C="text" }
+
+$objectProperties = @{ A=1; B=2; C="text" }
 
 $object = New-Object -TypeName PSObject -Property $objectProperties
 
@@ -134,22 +147,24 @@ $object | Format-Table -AutoSize
 $object2 = [PSCustomObject]$objectProperties
 $object2 | Format-Table -AutoSize
 
-# if I want to keep proiperty oreder
+# if I want to keep proiperty ordered
 
 $object3 = [PSCustomObject][Ordered]@{ A=1;B=2;C="text" } #on hashtable only
 $object3 | Format-Table -AutoSize
 
+#endregion
 
-###################
-## Class ##########
-###################
+#region Classes
 
-#new way of creating objects
-# problem for now - often there is win 2k12 without ps5 
-# class canot be defined inside pipline - so annonymous objects have this adentage
+# better - as uniform, shared 'definition', will be the 'right' way
+# but problem for now - often there is win 2k12 without ps5 
+
+# class canot be defined inside pipline - so annonymous objects have adentage there
+
 class Sample
 {
     [int]$value
+
     static [string]$name
 
     Sample()
@@ -161,22 +176,10 @@ class Sample
     {
         Write-host "Sample value is $($this.value)" #interpolation remark $()
     }
-
 }
 
-
 $object4 = New-Object Sample
-$object5 = [Sample]::new()
 
-$object5.Display()
+$object4.Display()
 
-
-
-Get-ChildItem c:\Temp -Directory | ForEach-Object {
- 
-    $stats = Get-ChildItem $_.FullName -Recurse -File | Measure-Object length -Sum 
-    Write-Output ([PSObject][ordered]@{ Name=$_.FullName; Size=$stats.Sum; Count=$stats.Count })
-
-    } | 
-    Sort-Object Size |
-    Format-Table -AutoSize
+#endregion
