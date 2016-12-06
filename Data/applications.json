@@ -1,9 +1,14 @@
 {
     "applications":[
         {
-            "name" : "PSWorkshopServiceApp",
-            "registryKey": "PSWorkshopServiceApp",
+            "name" : "FirstApp",
+            "registryKey": "PSFirstApp",
             "otherStting": 42
+        },
+        {
+            "name" : "SecondApp",
+            "registryKey": "PSSecondApp",
+            "otherStting": 44
         }
     ]
 }
