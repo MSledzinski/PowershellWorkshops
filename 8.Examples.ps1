@@ -131,3 +131,16 @@ Add-Type -TypeDefinition $sourceCode
 
 $object = New-Object BasicMath
 $object.Add(5, 2)
+
+
+# scheduled job
+
+$trigger = New-JobTrigger -RepetitionInterval (New-TimeSpan -Hours 1)
+
+Register-ScheduledJob -Name PsAppErrorEventsCheck -Trigger $trigger -ScriptBlock { 
+    Import-Module AppEventAggregator
+
+    Send-MailIfErrors #params
+}
+
+Get-ScheduledJob -Id 1

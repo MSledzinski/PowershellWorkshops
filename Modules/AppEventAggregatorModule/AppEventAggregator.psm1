@@ -1,3 +1,86 @@
+﻿# module is currently implementing 2 functinalities - events aggregator and mail sender
+# it should be split into two
+# it is implemented in one for simplicity
+
+#region Events
+function Get-PSWsApplicationsToCheck
+{
+    [CmdletBinding()]
+    [OutputType([PSObject])]
+    param(
+        [Parameter(Mandatory)]
+        [string]$ConfigurationFilePath
+    )
+
+    $content = Get-Content -Path $ConfigurationFilePath | ConvertFrom-Json
+    
+   foreach($application in $content.applications)
+   {
+        Write-Output ([PSCustomObject][ordered]@{ Name=$application.name; RegistryKey=$application.registryKey })
+   }
+}
+
+function Get-EventsFromLast24h
+{
+    [CmdletBinding()]
+    [OutputType([PSObject[]])]
+    param(
+        [Parameter(Mandatory)]
+        [string]$LogName
+    )
+        $eventsFilter = @{
+                'StartTime' = (Get-Date).AddHours(-24)
+                'EndTime' = (Get-Date)
+                'LogName' = $LogName
+                'Level' = 4 # Error
+            }
+        
+        Get-WinEvent -FilterHashtable $eventsFilter | ForEach-Object { [PSCustomObject][Ordered]@{ At=$_.TimeCreated; Message=$_.Message } }
+}
+
+function Throw-WhenRegistryPathNotExist
+{
+    Param([string]$Path)
+
+    if( -not (Test-Path $Path))
+    {
+        throw "Registry entry $("HKLM:/Software/$_") does not exist"
+    }
+
+    $true
+}
+
+function Search-PSWspApplicationError
+{
+    [CmdletBinding()]
+    [OutputType([PSObject])]
+    param(
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [string]$Name,
+
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [ValidateScript({ Throw-WhenRegistryPathNotExist "HKLM:/Software/$_" })]
+        [string]$RegistryKey
+    )    
+
+    process 
+    {
+        [string]$applicationLogName = Get-ItemProperty -Path "HKLM:/Software/$RegistryKey" | Select-Object -ExpandProperty AppLogName
+
+        [PSObject[]]$systemEvents = Get-EventsFromLast24h 'Application' | Where-Object { $_.Message -like "*$Name*" } 
+
+        [PSObject[]]$customEvents = Get-EventsFromLast24h $applicationLogName
+
+        foreach($event in ($systemEvents + $customEvents))
+        {
+            Write-Output ([PSCustomObject][ordered]@{ At=$event.At; Message=$event.Message })
+        }
+    }
+}
+
+#endregion 
+
+#region Mail
 function Get-MachineInfo
 {
     [OutputType([string])]
@@ -112,5 +195,29 @@ function Out-ErrorEventMail
         Send-Mail -content $emailBody -configurationFilePath $ConfigurationFilePath
     }
 }
+#endregion
 
-Export-ModuleMember -Function Out-*
+function Send-MailIfErrors
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$AppConfigurationPath,
+
+        [Parameter(Mandatory)]
+        [string]$SmtpConfigurationPath,
+
+        [Parameter(Mandatory)]
+        [int]$treshold
+    )
+    
+    [PSObject[]]$items = Get-PSWsApplicationsToCheck -ConfigurationFilePath $AppConfigurationPath | Search-PSWspApplicationError 
+
+    if ($items.Length -ge $treshold)
+    {
+        Out-ErrorEventMail -ConfigurationFilePath $SmtpConfigurationPath -InputObject $items
+    }
+}
+
+
+Export-ModuleMember -Function Search-PSWspApplicationError, Send-*
