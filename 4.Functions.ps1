@@ -1,6 +1,7 @@
 ﻿#region Basic functions
 
 #input (param) -> output (steam write-/out-, last value)
+# !!! never display, always return objects
 
 # Verb-Noun
 
@@ -14,13 +15,40 @@ function Get-Stuff2()
     Write-host "Stuff"
 }
 
-function Get-StuffWithParams([string]$parameter)
+function Get-StuffWithParams($parameter)
 {
     Write-host ("Stuff" + $parameter)
 }
 
-function Get-StuffWithParams2
+function Get-StuffWithParams2([string]$parameter)
 {
+    Write-host ("Stuff" + $parameter)
+}
+
+function Get-StuffWithParams3
+{
+    Param(
+        [string]$parameter)
+
+    Write-host ("Stuff" + $parameter)
+}
+
+function Get-StuffWithParams3
+{
+    <#
+        .SYNOPSIS
+        This function does something important
+
+        .DESCRIPTION
+        It runs some heavy machinery to do stuff
+
+        .EXAMPLE
+        Get-StuffWithParams3 -paramter "ABC"
+
+        .NOTES
+        Function returns terminating error if it is too late
+    #>
+
     param(
         [string]$parameter)
 
@@ -28,61 +56,38 @@ function Get-StuffWithParams2
 }
 
 
-Get-Suff
-Get-StuffWithParams -parameter "ABC"
-
 # output - output stream
-function Get-DataWO
-{
-    # it does not means function ends here
-    Write-Output 1
-    Write-Host "At the end of Get-DataWO"
-}
 
 function Get-DataR
 {
-    # it is over
+    return 1
     return 2
     Write-Host "At the end of  Get-DataR"
 }
 
+function Get-DataWO
+{
+    Write-Output 1
+    Write-Output 2
+    Write-Host "At the end of Get-DataWO"
+}
+
 function Get-Data
 {
-    # it does not means function ends here, it is equivalent to: write-output 3 
-    3
+    1
+    2
     Write-Host "At the end of  Get-Data" 
 }
 
-Get-DataWO
 Get-DataR
+Get-DataWO
 Get-Data
-
-# will there be the same result?
-function Get-Data1
-{
-    6
-}
-
-function Get-Data2
-{
-    1 
-    2
-    3
-    4
-    5
-    6
-}
-
-$resul1 = Get-Data1
-$result2 = Get-Data2
-
-$resul1 -eq $result2
-
 
 #endregion
 
 
-#region Advanced, or real-life functions
+
+#region Advanced, or real-life functions - out of scope
 
 function Get-DataAdvanced
 {
@@ -101,20 +106,20 @@ Get-DataAdvanced
 
 
 
+
 #region Parmeters and Validation
 
 function Get-WithMandatoryParameter
 {
-    [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [string]$value
     )
 
-
+    Write-Host $value -ForegroundColor Green
 }
 
-(Get-Command -Name 'Get-WithMandatoryParameter').Parameters.Value.Attributes
+Get-WithMandatoryParameter
 
 
 function Get-FolderItemsCount
@@ -142,9 +147,9 @@ Get-FolderItemsCount 'c:\temp'
 
 Get-FolderItemsCount 'c:\temp4'
 
-function Get-WithSetAndRange
+
+function Set-VMMemoryLimit
 {
-    [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
         [ValidateSet('abc','def')]
@@ -154,43 +159,19 @@ function Get-WithSetAndRange
         [int]$memory
     )
 
-    "Value is $value, $memory"
+    Write-Host "Value is $value, $memory"
 }
 
-Get-WithSetAndRange "abc" -memory 101MB
+Set-VMMemoryLimit "abc" -memory 101MB
 
-Get-WithSetAndRange "abc" -memory 10MB
+Set-VMMemoryLimit "abc" -memory 10MB
 
-Get-WithSetAndRange "xyz"
-
-get-help Get-WithSetAndRange
+Set-VMMemoryLimit "xyz"
 
 #endregion
 
-#region Nulls
-function Get-WithNull
-{
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [string]$value
-    )
 
-    "Value is $value"
-}
-
-Get-WithNull $null
-
-Get-WithNull ''
-
-Get-WithNull 'a'
-
-# NotNull only when paramter is Mandatory only
-
-#endregion
-
-#region Parameters Set
+#region Parameters Set - out of scope
 
 function New-ImportantItem
 {
@@ -229,12 +210,21 @@ New-ImportantItem -Name 'abc' -IdValue 1
 
 
 #region Rember about Out .. once again!
+# Out-Null to help us!
 
-function Set-NetworkState()
+function Set-NetworkState
 {
+    Param([string]$state)
+
     $statusCode = 3
+
     # Do some system state change
-    return $statusCode
+
+
+    if(($state -eq 'Off') -and ($statusCode -gt 1))
+    {
+        return $statusCode
+    }
 }
 
 function Get-FromRemote
@@ -244,19 +234,20 @@ function Get-FromRemote
      Write-Output 300
 }
 
-function Invoke-SomeDataFetch()
+function Invoke-SomeDataFetch
 {
+    Set-NetworkState -state 'On'
+
     foreach($item in Get-FromRemote)
     {
         Write-Output $item
     }   
-    
-    Set-NetworkState     
+        
+    Set-NetworkState -state 'Off' 
 }
 
 function Interpret-Values
 {
-    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory,ValueFromPipeline)]
@@ -279,3 +270,4 @@ function Interpret-Values
 Invoke-SomeDataFetch | Interpret-Values
 
 #endregion
+

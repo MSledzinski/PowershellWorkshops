@@ -1,74 +1,29 @@
 ﻿#region Multiple pipelines
 
-# ErrorPipeline, WarningPipeline, VerbosePipeline, DebugPipeline
-# not all cmdlets designed to use it
-
-# controlled by preference variables
-
-
-
-function Set-VerboseThings
-{
-    [CmdletBinding()]
-    param()
-
-    Write-Debug "from debug pipe..."
-    Write-Verbose "from verbose pipie..."
-
-    Write-Output "from output pipe..."
-}
-
-Set-VerboseThings 
-Set-VerboseThings -Verbose
-Set-VerboseThings -Debug
-
-# stream redirection
- 
-# Stream = value
-# Pipeline (success) = 1
-# Errors = 2
-# Warning = 3
-# Verbose = 4
-# Debug = 5
-
-# write >
-# append >>
-# merge >&
-# merging example
-Get-WmiObject wind32_logicaldisk 2>err.txt 4>verbose.txt
-
-Get-WmiObject wind32_logicaldisk 2>&1 1>data.txt # any erros and output will be in the same file, can only merge to sucess stream
-
-
-# Sometimes pipeline is not good for given task - better to assign to variable and do ForEach (Enumeration) then pipe
-# performance can be checked with Measure-Command { } 
-
-#endregion
 
 #region Pipeline binding
 
+
 # so know lets talk why: Get-Data | Convert-Data | Out-File works
 
-function Get-VirtualMachineData
+function Get-VirtualMachineConfiguration
 {
-    [CmdletBinding()]
-    [OutputType([PSCustomObject])]
     param
     (
         [Parameter(Mandatory)]
         [string]$Name
     )
 
-    [PSCustomObject]@{ 'Name' = $name; 'VHost' = 'HyperV1'; 'Type' = 'VM' }
+    return [PSCustomObject]@{ Name = $Name; VHost = 'HyperV1'; Type = 'VM' }
 }
 
-function Set-VirtualMachineData1
+function Set-VirtualMachineData1_NVP
 {
-    [CmdletBinding()]
+
     param
     (
-        [Parameter(Mandatory,ValueFromPipeline)]
-        [PSObject]$InputObject
+        [Parameter(Mandatory)]
+        [PSCustomObject]$InputObject
     )
     
     process
@@ -77,24 +32,42 @@ function Set-VirtualMachineData1
     }
 }
 
-function Set-VirtualMachineData1_5
+function Set-VirtualMachineData1
 {
-    [CmdletBinding()]
+
     param
     (
         [Parameter(Mandatory,ValueFromPipeline)]
-        [int]$InputObject
+        [PSCustomObject]$InputObject
     )
     
     process
     {
-        Write-Host "$($InputObject) passed"
+        Write-Host "$($InputObject.Name) on $($InputObject.VHost)"
+    }
+}
+
+
+function Set-VirtualMachineData1_5
+{
+
+    param
+    (
+        [Parameter(Mandatory,ValueFromPipeline)]
+        [string]$InputObject
+    )
+    
+    process
+    {
+       Write-Host "$($InputObject.Name) on $($InputObject.VHost)"
+       
+       Write-Host "$($InputObject) passed"
     }
 }
 
 function Set-VirtualMachineData2
 {
-    [CmdletBinding()]
+
     param
     (
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
@@ -112,11 +85,11 @@ function Set-VirtualMachineData2
 
 function Set-VirtualMachineData3
 {
-    [CmdletBinding()]
+
     param
     (
         [Parameter(ValueFromPipeline)]
-        [PSObject]$FirstObject,
+        [PSCustomObject]$FirstObject,
         
         [Parameter(ValueFromPipeline)]
         [System.IO.FileInfo]$SecondObject
@@ -124,26 +97,34 @@ function Set-VirtualMachineData3
     
     process
     {
+        $FirstObject.GetType()
+        $SecondObject.GetType()
+
+        Write-Host "-----------"
         Write-Host "Machine: $($FirstObject.Name) on Host: $($FirstObject.VHost)"
         Write-Host "Machine: $($SecondObject.Name) on Host: $($SecondObject.VHost)"
     }
 }
 
 
-Get-VirtualMachineData -Name 'Machine1' | Get-Member
+Get-VirtualMachineConfiguration -Name 'Machine1' | Get-Member
 
 # step 1 - has input with type
-Get-VirtualMachineData -Name 'Machine1' | Set-VirtualMachineData1
+Get-VirtualMachineConfiguration -Name 'Machine1' | Set-VirtualMachineData1_NVP
+
+Get-VirtualMachineConfiguration -Name 'Machine1' | Set-VirtualMachineData1
 
 # step 2 - or can I cast it
-"aaaaa" | Set-VirtualMachineData1 # PS is able to case object -> PSObject
-Get-VirtualMachineData -Name 'Machine1'| Set-VirtualMachineData1_5 # but not PSObject -> string
+
+Get-VirtualMachineConfiguration -Name 'Machine1'| Set-VirtualMachineData1_5 # but not PSObject -> string
 
 # step 3 - by property
-Get-VirtualMachineData -Name 'Machine1' | Set-VirtualMachineData2
+Get-VirtualMachineConfiguration -Name 'Machine1' | Set-VirtualMachineData2
 
-#danger - type coersion, as PSObject is generic
-# FileInfo
+
+# danger - type coersion, as PSObject is generic
+
+#                          -> FileInfo ->
 Get-Item 'c:\Windows\notepad.exe' | Set-VirtualMachineData3 
 
 
@@ -156,29 +137,54 @@ Get-Item 'c:\Windows\notepad.exe' | Set-VirtualMachineData3
 
 function Set-ManyThings
 {
-    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory,ValueFromPipeline)]
-        [string]$Name
+        [string]$Value
     )
     
     begin
     {
         # I.e. Create file here, or setup Error Action preference..
-        Write-Host "Inside Being, Name: $Name" -ForegroundColor Green
+        Write-Host "Inside Being, Value is: $Value" -ForegroundColor Green
     }
+
     process
     {
-        Write-Host "Value $Name" -ForegroundColor Yellow
+        Write-Host "Value is $Value" -ForegroundColor Yellow
     }
+
     end
     {
         # I.e. Remove PS session, temp files, closing connections....
-        Write-Host "Inside End, Name: $Name" -ForegroundColor Red
+        Write-Host "Inside End, Value is: $Value" -ForegroundColor Red
     }
 }
 
-'abc','def','xyz' | Set-ManyThings
+function Get-ManyItems
+{
+    foreach($i in 1..3)
+    {
+        sleep -Seconds 3
+        Write-Host "Processed value: $i - sending to output pipe" -ForegroundColor DarkRed
+        Write-Output $i
+    }
+}
+
+Get-ManyItems | Set-ManyThings
 #endregion
 
+
+#region Performance
+
+# Sometimes pipeline is not good for given task - better to assign to variable and do ForEach (Enumeration) then pipe
+# performance can be checked with Measure-Command { } 
+Measure-Command { 
+
+        Get-Process | Tee-Object 'C:\Temp\proc_dump.txt'
+        get-content 'C:\Temp\proc_dump.txt' 
+
+        }
+
+
+#endregion

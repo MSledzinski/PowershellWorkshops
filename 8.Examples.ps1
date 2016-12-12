@@ -4,7 +4,7 @@ Get-Service | gm
 
 
 # Annonymous object tpyes, calculated properties
- Get-Service | Select-Object @{ Name='SN'; Expression={$_.Name}} 
+ Get-Service | Select-Object -Property @{ Name='SN'; Expression={$_.Name + "_1" }} 
 
 
 # Manipulate pipe
@@ -13,9 +13,14 @@ Get-Service | Where-Object { } | ForEach-Object {} | Tee-Object {} | Group-Objec
 
 
 # Diffrent outputs
-Out-null
+Out-Null
+
 Out-File
 
+
+# join-path to avoid checking for /
+Join-Path 'c:\temp\' '\folder\aa.txt'
+Join-Path 'c:/temp/' 'folder\aa.txt'
 
 
 # Providers
@@ -28,15 +33,32 @@ Get-ChildItem -Path Cert:\LocalMachine -Recurse |
     Where-Object { $_.Subject -eq 'CN=localhost' } | 
     Select-Object -Property Subject,Thumbprint
 
+# Working with SQL
+Import-Module SQLPS
+
+Get-Command -Module SQLPS
+
+Invoke-Sqlcmd -Query "SELECT GETDATE() AS TimeOfQuery;" -ServerInstance "localhost" 
+
+# list databases
+Get-ChildItem -Path "SQLSERVER:\SQL\$($env:COMPUTERNAME)\default\Databases"
+
 Set-Location SQLServer:
-Set-Location HKLM:
 
 
 
-# join-path to avoind checking for /
-Join-Path 'c:/temp/' '\folder\aa.txt'
-Join-Path 'c:/temp/' 'folder\aa.txt'
+# Web IIS
+Import-Module WebAdministration
+Get-ChildItem –Path IIS:\AppPools
 
+# now remember appcmd :)
+
+Import-Module WebAdministration
+New-Item –Path IIS:\AppPools\App1
+Set-ItemProperty -Path IIS:\AppPools\App1 -Name managedRuntimeVersion -Value 'v4.0'
+
+
+Remove-WebAppPool -Name App1
 
 
 # WinRM - complex topic - but easy to setup inside a domain (+kerberos)
@@ -46,26 +68,9 @@ $session = Enter-PSSession -ComputerName computername-Credential $cred
 
 
 Exit-PSSession $session
-# Get-Service -ComputerName fp-pc2686.fp.lan,computer2,computer3 
+Get-Service -ComputerName fp-pc2686.fp.lan,computer2,computer3 
 
 
-
-
-# Web IIS
-Import-Module WebAdministration
-Get-ChildItem –Path IIS:\AppPools
-
-$appPoolName = 'MyAppPool'
-$scriptBlock = {
-    Import-Module WebAdministration
-    New-Item –Path IIS:\AppPools\$using:appPoolName
-    Set-ItemProperty -Path 
-    IIS:\AppPools\$using:appPoolName -Name 
-    managedRuntimeVersion -Value 'v4.0'
-    Remove-WebAppPool -Name $using:appPoolName
-}
-
-Invoke-Command –ComputerName SOMEIISSERVER –ScriptBlock $scriptBlock 
 
 # Splatting
 Get-Content -Path C:\MyText.txt -ReadCount 1 -TotalCount 3 -Force -Delimiter "," -Filter '*' -Include * -Exclude 'a'
@@ -82,24 +87,28 @@ $getContentParameters = @{
 }
 Get-Content @getContentParameters
 
-# WMI and invoke-command
-$class = “win32_bios”
 
-Invoke-Command -cn serverName {param($class) Get-WmiObject -class $class} -ArgumentList $class
+# WMI and invoke-command
 
 Get-WmiObject Win32_USBControllerDevice  |fl Antecedent,Dependent
 
+
+# CIM/WMI out of scope
+Get-CimInstance win32_logicaldisk -Filter "drivetype=3" |
+    Select-Object -Property DeviceID,VolumeName,@{N='FreeGB';E={[math]::Round($_.Freespace/1GB,2)}} 
+
 # bootsrap project modules in profile
 
+
+
 # Calling web requests
-Invoke-WebRequest -UseBasicParsing 
-Invoke-RestMethod -UseBasicParsing
+Invoke-WebRequest 'www.google.com' -UseBasicParsing 
 
-# Working with SQL
-Invoke-Sqlcmd -Query "SELECT GETDATE() AS TimeOfQuery;" -ServerInstance "localhost" 
+Invoke-RestMethod 'http://someservice.com/api/items' -Method Get -Headers {}
 
-Get-Module -ListAvailable -Name Sqlps;
-(Get-Module -ListAvailable -Name Sqlps | Select -First 1).ExportedCommands
+
+
+
 
 # Call WinApi when needed 
 $Signature = @"
@@ -112,6 +121,9 @@ $ShowWindowAsync::ShowWindowAsync((Get-Process -Id $pid).MainWindowHandle, 2)
 
 # Restore it
 $ShowWindowAsync::ShowWindowAsync((Get-Process -Id $Pid).MainWindowHandle, 4)
+
+
+
 
 # Add .Net code
 $sourceCode = @"
@@ -137,6 +149,8 @@ $object = New-Object BasicMath
 $object.Add(5, 2)
 
 
+
+
 # scheduled job
 
 $trigger = New-JobTrigger -RepetitionInterval (New-TimeSpan -Hours 1)
@@ -148,3 +162,28 @@ Register-ScheduledJob -Name PsAppErrorEventsCheck -Trigger $trigger -ScriptBlock
 }
 
 Get-ScheduledJob -Id 1
+
+
+
+
+# ErrorPipeline, WarningPipeline, VerbosePipeline, DebugPipeline
+# not all cmdlets designed to use it
+
+# controlled by preference variables
+
+function Set-VerboseThings
+{
+    [CmdletBinding()]
+    param()
+
+    Write-Debug "from debug pipe..."
+    Write-Verbose "from verbose pipie..."
+
+    Write-Output "from output pipe..."
+}
+
+Set-VerboseThings 
+Set-VerboseThings -Verbose
+Set-VerboseThings -Debug
+
+#endregion

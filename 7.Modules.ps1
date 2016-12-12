@@ -12,10 +12,11 @@ $env:PSModulePath -split ";"
 
 Get-Module -ListAvailable
 
-Get-PSRepository
+Get-Command -Module PKI
 
 Find-Module -Name *Git* | Select-Object -Property Name,Description | FT -AutoSize
 
+Install-module
 
 # Loading module into PS Session
 Import-Module SQLPS
@@ -24,6 +25,7 @@ Get-Command -Module SQLPS
 
 Remove-Module SQLPS
 
+
 Import-Module .\Modules\BadNames\BadNames.psm1
 Import-Module .\Modules\BadNames\BadNames.psm1 -DisableNameChecking -Force
 
@@ -31,12 +33,11 @@ Import-Module .\Modules\BadNames\BadNames.psm1 -DisableNameChecking -Force
 code $profile
 
 
-
+# So how module looks like
 # Template module
 code .\Modules\TemplateModule
 
 # Export-ModuleMember -Function 'Get-*','New-*'
-
 
 
 # Module manifest
@@ -44,17 +45,5 @@ code .\Modules\TemplateModule
 # psd1 file, placed in folder root, meta information, module dependencies
 # list of external files that are part of module
 
-New-ModuleManifest C:\Temp\NewModule.psd1
+New-ModuleManifest C:\Temp\NewModule.psd1 
 
-
-
-# Package providers - usefule inside containers, dsc etc.
-# idea of oneget, unification of providers
-# similar to Chocolatey - abstractoin over it
-Get-PackageProvider
-
-Find-Package -Name "Git" -Provider "Chocolatey"
-
-Find-Package -Name "DSCAccelerator" -MinimumVersion "1.5.0" -MaximumVersion "2.1" -AllVersions
-
-Install-Package

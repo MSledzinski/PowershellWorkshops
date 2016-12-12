@@ -1,7 +1,7 @@
 ﻿# Commands/functions
 # cmdlet -> functions -> modules
 
-# convention, readable, slef-describing
+# convention, readable, self-describing
 Verb-Noun
 
 Get-Item
@@ -15,14 +15,28 @@ Set-Acl
 
 # Approved verbs: https://msdn.microsoft.com/en-us/library/ms714428(v=vs.85).aspx
 
-Get-Command Get-ChildItem
+# Find help
+Get-Command  *Service*
 
-Get-Alias gci
-Get-Alias
+Get-Command -Verb Get -Noun *Service*
 
-# Help
-Get-Help | more
 
+Get-Help
+
+Get-Help Get-Service -Detailed 
+
+Get-Help Get-Service  -Full
+
+
+Get-Command Get-Service -Syntax
+
+
+help #alias
+
+# if something is unclear - google it :)
+
+
+# sometimes detailed help missing
 Update-Help
 
-Get-Help get-service  -full 
+

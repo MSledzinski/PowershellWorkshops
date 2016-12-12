@@ -1,0 +1,37 @@
+﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+. .\_example_implementation.ps1
+
+Describe "Example test" {
+    
+    Context "JSON deployed application settings" {
+
+        It "should read well-formatted json file" {
+
+            $jsonContent = 
+@"
+                            {
+                                "applications":[
+                                    {
+                                        "name" : "App1",
+                                        "registryKey": "Key1",
+                                        "otherStting": 42
+                                    },
+                                    {
+                                        "name" : "App2",
+                                        "registryKey" : "Key2",
+                                        "otherSetting" : 44
+                                    }
+                                ]
+                             }
+"@
+
+            Mock Test-Path { $true } -ParameterFilter { $Path -eq 'c:\data.json' }
+            Mock Get-Content { $jsonContent } -ParameterFilter { $Path -eq 'c:\data.json' }
+
+            $configuration = Get-DeployedApplicationsInformation -ConfigFilePath 'c:\data.json'
+
+            $configuration.Length | Should Be  2
+        }
+    }
+}

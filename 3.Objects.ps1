@@ -4,7 +4,7 @@
 
 # object based management engine -> cmdlets and pipline are using it 
 
-# remember there is .net underneath
+# remember there is .net underneath!
 # always return object not display (ft, fl already there)
 
 # [string]    Fixed-length string of Unicode characters
@@ -18,15 +18,30 @@
 # [decimal]   A 128-bit decimal value
 # [single]    Single-precision 32-bit floating point number
 # [double]    Double-precision 64-bit floating point number
+
 # [DateTime]  Date and Time
 
 # [xml]       Xml object
+
 # [array]     An array of values
 # [hashtable] Hashtable object
+
+# [PSCustomObject]
+
+$variable = 1
+[int]$variable = 1
 
 $null
 
 $null -eq $null
+
+
+$array = @(1,2,3)
+$array.Count
+
+$hash = @{ A = 1; B = 2 }
+
+$hash = @{ A = 1; A = 2}
 
 
 43 -is [int]
@@ -38,6 +53,10 @@ $true -is [bool]
 
 $true -eq $false
 
+# .Net Types
+[System.Net.Mail.MailMessage]$message
+
+
 #endregion
 
 
@@ -45,15 +64,17 @@ $true -eq $false
 
 # symbol | means pipeline -> for now assume that there is 'magic' transition from output ot next input
 # help drawing of 'lazy' stream
+#  [string]  ->     [hash]   ->  [void]
+Get-SomeConfiguration | Set-SomethingBasedOnConfiguration
 
 Get-Process #output is customized, not raw objects
 
-Get-Process | Get-Member | Format-Table 
+
+Get-Process | Get-Member
+
 
 # Get-Process | gm
 # AliasProperty, Property, PropertySet, ScriptProperties (dynamically calculated), NoteProperty (static), Method
-
-Get-Process lsass | Select-Object -Property *
 
 
 # Operations on object
@@ -61,24 +82,74 @@ Get-Command -Noun Object
 
 # select (powerfull command)
 Get-Process | 
-    Select-Object -Property ID,Name,*MemorySize |
-    Select-Object -First 1 
+    Select-Object -Property ID,Name  # | gm
+
+Get-Process | 
+    Select-Object -Property ID,Name,*MemorySize  # | gm
+
+
+Get-Process | Select-Object -First 5 # -Last 1
+
+
+
+# expand 
+Get-Process | Select-Object -ExpandProperty Name 
+Get-Process | Select-Object -ExpandProperty Name | gm
+
+$firstStr = Get-Process | Select-Object -ExpandProperty Name  | Select-Object -first 1
+Write-host "I'm:  $($firstStr.ToString())" -ForegroundColor Green
+
+# vs
+
+Get-Process | Select-Object -Property Name # not the same
+Get-Process | Select-Object -Property Name | gm
+
+$firstPrc = Get-Process | Select-Object -Property Name | Select-Object -First 1
+Write-host "I'm:  $($firstPrc.ToString())" -ForegroundColor Red
+
+
+
+
+# de-dup
+@('abc','def','abc','xyz') | Select-Object -Unique # | gm
+
+
+
 
 # sort 
 Get-Process | 
     Sort-Object -Property PagedMemorySize -Descending | 
-    Select-Object -Property ID,Name,*MemorySize 
+    Select-Object -First 1
+
+
 
 # foreach
-Get-Process | ForEach-Object { Write-Host "Processing: $($_.Name)" } # not a lot of sense :)
+Get-Process | ForEach-Object { Write-Host "Processing: $($_.Name)" } # | gm # not a lot of sense :)
+
+
+
 
 # filter
 Get-Process |
     Where-Object { $_.StartTime -gt (Get-Date).AddHours(-1) }
 
+
+
+
+# remark
+[ScriptBlock]$hasStartedNoLongerThenAnHourAgo = {
+    $_.StartTime -gt (Get-Date).AddHours(-1)
+}
+
+Get-Process | Where-Object -FilterScript $hasStartedNoLongerThenAnHourAgo
+
+
+Get-Process | Where-Object $hasStartedNoLongerThenAnHourAgo
+
+
 # measure
 Get-Process | Measure-Object 
-Get-Process | Measure-Object -Property VirtualMemorySize -Sum
+Get-Process | Measure-Object -Property VirtualMemorySize -Sum 
 
 
 # group
@@ -88,8 +159,6 @@ Get-Process | Group-Object -Property Name
 # really usefull
 Get-Process | Tee-Object 'C:\Temp\proc_dump.txt'
 notepad 'C:\Temp\proc_dump.txt'
-
-(Get-Process | Select-Object -First 1).PSObject # reflection, well, kind of
 
 #endregion
 
@@ -101,11 +170,7 @@ notepad 'C:\Temp\proc_dump.txt'
 
 Get-Process |
     Select-Object -Property Id,Name,StartTime,@{Name="Runtime";Expression={(Get-Date) - $_.StartTime}} | #ScriptProperty
-    Sort-Object -Property Runtime
-
-# CIM/WMI out of scope
-Get-CimInstance win32_logicaldisk -Filter "drivetype=3" |
-    Select-Object -Property DeviceID,VolumeName,@{N='FreeGB';E={[math]::Round($_.Freespace/1GB,2)}} 
+    Format-Table -Property Id,Name,Runtime -AutoSize
 
 
 
@@ -113,12 +178,26 @@ Get-CimInstance win32_logicaldisk -Filter "drivetype=3" |
 
 # Type accelerators
 [string]$dataString = "abc"
+$dataString = [string]"abc"
+
 $datetimeValue = [datetime]'11/11/2016'
+$datetimeValue.DayOfWeek
+
+$datetimeValue = [datetime]'13/13/2016'
 
 # XML ... BTW it is realy handy
 $contentXml = [xml]"<root><node>abc</node></root>"
+
 $contentXml.DocumentElement.ChildNodes[0].InnerText
+
 $contentXml.root.node
+
+# verison
+$version = [version]'8.0.1.33'
+
+$version.Revision
+
+$version = [version]'8.0.1aas.3aaa3'
 
 
 # exsiting types that can be 'accelerated'
@@ -127,20 +206,32 @@ $contentXml.root.node
 
 
 # New-Object
+
+# existing types
+$version2 = New-Object -TypeName System.Version -ArgumentList '8.0.1.33'
+$version2.Revision
+
+
+
+
 # Add-Member method
 
-$object = New-Object –TypeName PSObject
+$object = New-Object –TypeName PSCustomObject
+
 Add-Member -InputObject $object –MemberType NoteProperty –Name MyProperty –Value 1 
+# ...
+
 
 $object
 $object | gm
+
 
 # From hashtable
 # PSCustomObject and PsObject - are aliases for the same type, almost... PSCustomObject is more clever during creation
 
 $objectProperties = @{ A=1; B=2; C="text" }
 
-$object = New-Object -TypeName PSObject -Property $objectProperties
+$object = New-Object -TypeName PSCustomObject -Property $objectProperties
 
 $object | Format-Table -AutoSize
 
@@ -154,32 +245,6 @@ $object3 | Format-Table -AutoSize
 
 #endregion
 
-#region Classes
 
-# better - as uniform, shared 'definition', will be the 'right' way
-# but problem for now - often there is win 2k12 without ps5 
-
-# class canot be defined inside pipline - so annonymous objects have adentage there
-
-class Sample
-{
-    [int]$value
-
-    static [string]$name
-
-    Sample()
-    {
-        $this.value = 10
-    }
-
-    [void] Display()
-    {
-        Write-host "Sample value is $($this.value)" #interpolation remark $()
-    }
-}
-
-$object4 = New-Object Sample
-
-$object4.Display()
-
-#endregion
+# Exercise
+# find all services that are running and then return only count
