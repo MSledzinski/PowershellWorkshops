@@ -60,7 +60,7 @@ function Get-ErrorEeventsFromWindowsLog
                     'StartTime' = (Get-Date).AddHours(-128)
                     'EndTime' = (Get-Date)
                     'LogName' = $LogName
-                    'Level' = 4 # Error
+                    'Level' = 2 # Error
                 }
   
        Get-WinEvent -FilterHashtable $eventsFilter

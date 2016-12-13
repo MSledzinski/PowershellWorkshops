@@ -49,9 +49,20 @@ $hash = @{ A = 1; A = 2}
 [string]$str = [char]0x263a
 $str
 
+
+[string]$str = 1234123
+$str
+
+
+[int]$value = "ABC"
+$value
+
+
+
 $true -is [bool]
 
 $true -eq $false
+
 
 # .Net Types
 [System.Net.Mail.MailMessage]$message
