@@ -49,7 +49,6 @@ Configuration ServicesDscConfiguration {
 
 
 
-
 # process flow
 # Authoring (write and compile to MOF - platform independent) -> Staging (push or pull, client receives) -> 'make it so' (LCM)
 
@@ -58,6 +57,9 @@ Configuration ServicesDscConfiguration {
 # example configuring LCM - configure LCM agent on machine, not exactly machine state itself, meta-configuration
 # creates metadata.mof
 
+
+
+# configure client agent
 [DSCLocalConfigurationManager()] 
 Configuration LCMPush
 {
@@ -85,10 +87,13 @@ LCMPush -OutputPath $OutPath
 cd $OutPath 
 
 # set
-Set-DscLocalConfigurationManager -ComputerName vm-ms-dsc2.fp.lan -Path $OutPath -Verbose
+Set-DscLocalConfigurationManager -ComputerName vm2 -Path $OutPath -Verbose
 
 # check what was set
-Get-DscLocalConfigurationManager -CimSession vm-ms-dsc2.fp.lan
+Get-DscLocalConfigurationManager -CimSession vm2
+
+
+
 
 
 # push and pull mode
@@ -149,20 +154,30 @@ Set-DscLocalConfigurationManager -ComputerName $nodeNames -Path $outp -Verbose
 # installed - from module paths
 Get-DscResource
 
-# available
- Find-DscResource -OutVariable r | measure
- $r | ogv
+# available - X... and C...
+Find-DscResource -OutVariable r | measure
+$r | ogv
 
-# X... and C...
-Install-Module -name cWSMan -verbose
+
+
 
  # show example of module-resource
-notepad (Get-DscResource xWebAppPool | Select-Object -ExpandProperty path)
 
 Get-DscResource File -Syntax
 
- # https://gallery.technet.microsoft.com/scriptcenter/DSC-Resource-Kit-All-c449312d
- # https://github.com/PowerShellOrg
+
+
+Install-module -Name cWindowsOS
+
+Import-Module cWindowsOS
+
+explorer (Split-Path ( Get-Module cWindowsOS | $ path))
+
+
+
+
+
+
 
  # interesting cross machine dependencies
 Get-DscResource WaitFor*

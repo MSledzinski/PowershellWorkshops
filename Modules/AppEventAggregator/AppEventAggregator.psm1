@@ -11,12 +11,10 @@ function Get-PSWsApplicationsToCheck
         [string]$ConfigurationFilePath
     )
 
-    $content = Get-Content -Path $ConfigurationFilePath | ConvertFrom-Json
-    
-   foreach($application in $content.applications)
-   {
-        Write-Output ([PSCustomObject][ordered]@{ Name=$application.name; RegistryKey=$application.registryKey })
-   }
+   Get-Content -Path $ConfigurationFilePath | 
+    ConvertFrom-Json | 
+        Select-Object -ExpandProperty applications | 
+            ForEach-Object { [PSCustomObject][ordered]@{ Name=$_.name; RegistryKey=$_.registryKey } }
 }
 
 function Get-EventsFromLast24h
@@ -30,10 +28,11 @@ function Get-EventsFromLast24h
                 'StartTime' = (Get-Date).AddHours(-24)
                 'EndTime' = (Get-Date)
                 'LogName' = $LogName
-                'Level' = 4 # Error
+                'Level' = 2 # Error
             }
         
-        Get-WinEvent -FilterHashtable $eventsFilter | ForEach-Object { [PSCustomObject][Ordered]@{ At=$_.TimeCreated; Message=$_.Message } }
+        Get-WinEvent -FilterHashtable $eventsFilter |
+             ForEach-Object { [PSCustomObject][Ordered]@{ At=$_.TimeCreated; Message=$_.Message } }
 }
 
 function Throw-WhenRegistryPathNotExist

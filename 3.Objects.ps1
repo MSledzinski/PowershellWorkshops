@@ -45,7 +45,9 @@ $hash = @{ A = 1; A = 2}
 
 
 43 -is [int]
+43 -as [string]
 
+# built-in conversions (Ps if very flexible here)
 [string]$str = [char]0x263a
 $str
 
@@ -59,19 +61,25 @@ $value
 
 
 
+# bool
+
 $true -is [bool]
 
 $true -eq $false
+
 
 
 # .Net Types
 [System.Net.Mail.MailMessage]$message
 
 
+
+
 #endregion
 
 
 #region Everything is an object
+
 
 # symbol | means pipeline -> for now assume that there is 'magic' transition from output ot next input
 # help drawing of 'lazy' stream
@@ -88,8 +96,13 @@ Get-Process | Get-Member
 # AliasProperty, Property, PropertySet, ScriptProperties (dynamically calculated), NoteProperty (static), Method
 
 
+
 # Operations on object
 Get-Command -Noun Object
+
+
+
+
 
 # select (powerfull command)
 Get-Process | 
@@ -177,12 +190,6 @@ notepad 'C:\Temp\proc_dump.txt'
 
 #region  Object Extensions and Creation
 
-# @{ Name = <property name>; Expression={<expression>}}
-
-Get-Process |
-    Select-Object -Property Id,Name,StartTime,@{Name="Runtime";Expression={(Get-Date) - $_.StartTime}} | #ScriptProperty
-    Format-Table -Property Id,Name,Runtime -AutoSize
-
 
 
 # So, lets create some objects...
@@ -229,12 +236,16 @@ $version2.Revision
 
 $object = New-Object –TypeName PSCustomObject
 
-Add-Member -InputObject $object –MemberType NoteProperty –Name MyProperty –Value 1 
-# ...
+Add-Member -InputObject $object –MemberType NoteProperty –Name IntProperty –Value 1 
+
+$object | Add-Member –MemberType NoteProperty –Name SecondProperty –Value 'abc'
+
+# .... 
 
 
 $object
-$object | gm
+
+$object | gm | FL
 
 
 # From hashtable
@@ -254,7 +265,23 @@ $object2 | Format-Table -AutoSize
 $object3 = [PSCustomObject][Ordered]@{ A=1;B=2;C="text" } #on hashtable only
 $object3 | Format-Table -AutoSize
 
+
+# extending
+
+# @{ Name = <property name>; Expression={<expression>}}
+
+$extendedObject =
+Get-Process |
+    Select-Object -Property Id,Name,StartTime,@{Name="Runtime";Expression={(Get-Date) - $_.StartTime}} 
+
+$extendedObject | gm
+
+$extendedObject | Format-Table -Property * -AutoSize
+
+
 #endregion
+
+
 
 
 # Exercise
