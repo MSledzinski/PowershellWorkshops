@@ -175,8 +175,11 @@ explorer (Split-Path ( Get-Module cWindowsOS | $ path))
 
 
 
+# Example - DCS for ShP
 
+# https://github.com/PowerShell/SharePointDsc/wiki
 
+# https://gist.github.com/nivleshc/1106ff6a8333f8faec02cedec4c17506#file-createnewadforest-ps1
 
 
  # interesting cross machine dependencies

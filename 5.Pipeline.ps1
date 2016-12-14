@@ -172,6 +172,31 @@ function Get-ManyItems
 }
 
 Get-ManyItems | Set-ManyThings
+
+
+
+# foreach-object
+
+# do not do this!
+function ForEach-Object_2
+{
+    param
+    (
+        [Parameter(Mandatory)]
+        [ScriptBlock]$ProcessBlock,
+
+        [Parameter(Mandatory,ValueFromPipeline)]
+        [PSCustomObject]$Value
+    )
+
+    process
+    {
+        Invoke-Command -ScriptBlock $ProcessBlock -ArgumentList $Value
+    }
+}
+
+@(1,2,3,4) | ForEach-Object_2 { Write-host $_ -ForegroundColor Yellow }
+
 #endregion
 
 

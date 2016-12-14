@@ -17,7 +17,7 @@
         })]
         [string]$ConfigFilePath)
 
-    $content = [string](Get-Content $configFilePath)
+    $content = Get-Content $configFilePath | Out-String
     $data = ConvertFrom-Json $content
 
     $jsonToObjectAppMapper = {
@@ -67,11 +67,11 @@ function Get-ErrorEeventsFromWindowsLog
     }
 }
 
-Get-DeployedApplicationsInformation -ConfigFilePath 'C:\Projects\PsWorkshop\Data\applications.json' |
-    Get-ErrorEvetLogName |
-         Get-ErrorEeventsFromWindowsLog | 
-            Select-Object -Property TimeCreated,Message |
-                Format-Table -AutoSize
+#Get-DeployedApplicationsInformation -ConfigFilePath 'C:\Projects\PsWorkshop\Data\applications.json' |
+#    Get-ErrorEvetLogName |
+#         Get-ErrorEeventsFromWindowsLog | 
+#            Select-Object -Property TimeCreated,Message |
+#                Format-Table -AutoSize
                 
 
        

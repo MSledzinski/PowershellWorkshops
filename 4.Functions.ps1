@@ -1,7 +1,9 @@
 ﻿#region Basic functions
 
 #input (param) -> output (steam write-/out-, last value)
-# !!! never display, always return objects
+
+# never display, always return objects!
+# add second fucntion to display or formatter
 
 # Verb-Noun
 
@@ -55,6 +57,9 @@ function Get-StuffWithParams3
     Write-host ("Stuff" + $parameter)
 }
 
+Get-Help Get-StuffWithParams3 
+
+Get-Help Get-StuffWithParams3 -Examples
 
 # output - output stream
 
@@ -108,6 +113,8 @@ Get-DataAdvanced
 
 
 #region Parmeters and Validation
+
+# Fail Fast
 
 function Get-WithMandatoryParameter
 {

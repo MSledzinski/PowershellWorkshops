@@ -1,4 +1,5 @@
 ﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location $here 
 
 . .\_example_implementation.ps1
 

@@ -180,6 +180,7 @@ function Set-VerboseThings
     Write-Verbose "from verbose pipie..."
 
     Write-Output "from output pipe..."
+    Write-Warning "be careful"
 }
 
 Set-VerboseThings 
