@@ -1,6 +1,6 @@
 ﻿#region Introduction Types
 
-# powersehll object nature - one of the main paradigm shift from cmd/bash
+# powershell object nature - one of the main paradigm shift from cmd/bash
 
 # object based management engine -> cmdlets and pipline are using it 
 
@@ -29,22 +29,16 @@
 # [PSCustomObject]
 
 $variable = 1
+$variable.GetType()
+
 [int]$variable = 1
 
-$null
-
-$null -eq $null
-
-
-$array = @(1,2,3)
-$array.Count
-
-$hash = @{ A = 1; B = 2 }
-
-$hash = @{ A = 1; A = 2}
 
 
 43 -is [int]
+43 -is [string]
+
+
 43 -as [string]
 
 # built-in conversions (Ps if very flexible here)
@@ -69,9 +63,27 @@ $true -eq $false
 
 
 
+$null
+
+$null -eq $null
+
+# do not have to have the same type - but good practice
+$array = @(1,2,3)
+$array.Count
+
+$hash = @{ A = 1; B = 2 }
+
+
+$hash = @{ A = 1
+           B = 2 }
+
+
+$hash = @{ A = 1; A = 2}
+
+
+
 # .Net Types
 [System.Net.Mail.MailMessage]$message
-
 
 
 
@@ -90,9 +102,8 @@ Get-Process #output is customized, not raw objects
 
 
 Get-Process | Get-Member
+Get-Process | gm
 
-
-# Get-Process | gm
 # AliasProperty, Property, PropertySet, ScriptProperties (dynamically calculated), NoteProperty (static), Method
 
 
@@ -118,18 +129,23 @@ Get-Process | Select-Object -First 5 # -Last 1
 
 # expand 
 Get-Process | Select-Object -ExpandProperty Name 
+
 Get-Process | Select-Object -ExpandProperty Name | gm
 
-$firstStr = Get-Process | Select-Object -ExpandProperty Name  | Select-Object -first 1
-Write-host "I'm:  $($firstStr.ToString())" -ForegroundColor Green
+
+$firstStr = Get-Process | 
+                Select-Object -ExpandProperty Name  | 
+                Select-Object -first 1
+
+Write-host "I'm:  $firstStr" -ForegroundColor Green
 
 # vs
 
-Get-Process | Select-Object -Property Name # not the same
-Get-Process | Select-Object -Property Name | gm
+$firstPrc = Get-Process | 
+                Select-Object -Property Name | 
+                Select-Object -First 1
 
-$firstPrc = Get-Process | Select-Object -Property Name | Select-Object -First 1
-Write-host "I'm:  $($firstPrc.ToString())" -ForegroundColor Red
+Write-host "I'm:  $firstPrc" -ForegroundColor Red
 
 
 
@@ -179,10 +195,12 @@ Get-Process | Measure-Object -Property VirtualMemorySize -Sum
 # group
 Get-Process | Group-Object -Property Name
 
+
 # tee
 # really usefull
 Get-Process | Tee-Object 'C:\Temp\proc_dump.txt'
 notepad 'C:\Temp\proc_dump.txt'
+
 
 #endregion
 
@@ -255,15 +273,23 @@ $objectProperties = @{ A=1; B=2; C="text" }
 
 $object = New-Object -TypeName PSCustomObject -Property $objectProperties
 
-$object | Format-Table -AutoSize
+$object | gm
+$object | FL
+
+
+
 
 $object2 = [PSCustomObject]$objectProperties
 $object2 | Format-Table -AutoSize
+
+
 
 # if I want to keep proiperty ordered
 
 $object3 = [PSCustomObject][Ordered]@{ A=1;B=2;C="text" } #on hashtable only
 $object3 | Format-Table -AutoSize
+
+
 
 
 # extending
@@ -277,6 +303,12 @@ Get-Process |
 $extendedObject | gm
 
 $extendedObject | Format-Table -Property * -AutoSize
+
+Get-Process |
+Select-Object -Property Id,Name,StartTime,@{Name="Runtime";Expression={(Get-Date) - $_.StartTime}} |
+Tee-Object 'c:\temp\running_proc_runtime.txt'
+
+notepad 'c:\temp\running_proc_runtime.txt'
 
 
 #endregion

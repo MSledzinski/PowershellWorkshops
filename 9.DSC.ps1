@@ -7,6 +7,9 @@ Get-Command Find-Module
 Import-Module PSDesiredStateConfiguration
 Get-Command -module PSDesiredStateConfiguration
 
+# setting up machines
+# a little like GPO but not exactly...
+
 # from imperative to declarative
 # we can write custom ps script/module
 
@@ -18,6 +21,7 @@ if(-not $feature.Installed)
 
 # but what if it has a lot of settings? reboot required, error handling -> gets messy quite soon...?
 # responsibility of coping with them
+# make it idempotent
 
 WindowsFeature Telnet-client {
     Name = 'Telnet-client'
@@ -154,6 +158,11 @@ Set-DscLocalConfigurationManager -ComputerName $nodeNames -Path $outp -Verbose
 # installed - from module paths
 Get-DscResource
 
+
+Get-DscResource File -Syntax
+
+
+
 # available - X... and C...
 Find-DscResource -OutVariable r | measure
 $r | ogv
@@ -163,15 +172,12 @@ $r | ogv
 
  # show example of module-resource
 
-Get-DscResource File -Syntax
-
-
 
 Install-module -Name cWindowsOS
 
 Import-Module cWindowsOS
 
-explorer (Split-Path ( Get-Module cWindowsOS | $ path))
+explorer (Split-Path ( Get-Module cWindowsOS | % path))
 
 
 

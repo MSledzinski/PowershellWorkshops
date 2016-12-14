@@ -27,11 +27,11 @@ Join-Path 'c:/temp/' 'folder\aa.txt'
 # Set-Item, Get-Item in PSDrive abstraction
 Get-PSProvider
  
-Set-Location CERT:
-
 Get-ChildItem -Path Cert:\LocalMachine -Recurse | 
     Where-Object { $_.Subject -eq 'CN=localhost' } | 
     Select-Object -Property Subject,Thumbprint
+
+
 
 # Working with SQL
 Import-Module SQLPS
@@ -39,6 +39,7 @@ Import-Module SQLPS
 Get-Command -Module SQLPS
 
 Invoke-Sqlcmd -Query "SELECT GETDATE() AS TimeOfQuery;" -ServerInstance "localhost" 
+
 
 # list databases
 Get-ChildItem -Path "SQLSERVER:\SQL\$($env:COMPUTERNAME)\default\Databases"
@@ -64,11 +65,12 @@ Remove-WebAppPool -Name App1
 # WinRM - complex topic - but easy to setup inside a domain (+kerberos)
 # PSExec
 $cred = Get-Credential 'domain\user'
-$session = Enter-PSSession -ComputerName computername-Credential $cred
+$session = Enter-PSSession -ComputerName computername -Credential $cred
 
 
 Exit-PSSession $session
 Get-Service -ComputerName fp-pc2686.fp.lan,computer2,computer3 
+
 
 
 
@@ -90,19 +92,20 @@ Get-Content @getContentParameters
 
 # WMI and invoke-command
 
-Get-WmiObject Win32_USBControllerDevice  |fl Antecedent,Dependent
+Get-WmiObject Win32_USBControllerDevice  
 
 
 # CIM/WMI out of scope
 Get-CimInstance win32_logicaldisk -Filter "drivetype=3" |
     Select-Object -Property DeviceID,VolumeName,@{N='FreeGB';E={[math]::Round($_.Freespace/1GB,2)}} 
 
+
 # bootsrap project modules in profile
 
 
 
 # Calling web requests
-Invoke-WebRequest 'www.google.com' -UseBasicParsing 
+Invoke-WebRequest 'www.google.com' -UseBasicParsing # rember about parse!
 
 Invoke-RestMethod 'http://someservice.com/api/items' -Method Get -Headers {}
 
@@ -156,12 +159,13 @@ $object.Add(5, 2)
 $trigger = New-JobTrigger -RepetitionInterval (New-TimeSpan -Hours 1)
 
 Register-ScheduledJob -Name PsAppErrorEventsCheck -Trigger $trigger -ScriptBlock { 
+   
     Import-Module AppEventAggregator
 
     Send-MailIfErrors #params
 }
 
-Get-ScheduledJob -Id 1
+
 
 
 

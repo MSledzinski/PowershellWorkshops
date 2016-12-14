@@ -47,7 +47,6 @@ function Set-VirtualMachineData1
     }
 }
 
-
 function Set-VirtualMachineData1_5
 {
 
@@ -128,6 +127,7 @@ Get-VirtualMachineConfiguration -Name 'Machine1' | Set-VirtualMachineData2
 Get-Item 'c:\Windows\notepad.exe' | Set-VirtualMachineData3 
 
 
+# Get-Service | our-function-here with proper params
 
 #endregion
 
@@ -195,7 +195,7 @@ function ForEach-Object_2
     }
 }
 
-@(1,2,3,4) | ForEach-Object_2 { Write-host $_ -ForegroundColor Yellow }
+Get-ManyItems | ForEach-Object_2 { Write-host $_ -ForegroundColor Yellow }
 
 #endregion
 

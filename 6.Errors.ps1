@@ -35,12 +35,16 @@ Get-WithHandling
 
 Write-Host $Error.Count -ForegroundColor Green
 
+
+
 # Write-Error - nonterminating errors
 # throw - terminating errors
 
 throw 'Termination error'
 
 Write-Error 'Non-terminating error'
+
+
 
 # can be modified in scope - but it is dangerous to use it - as it has effect on whole scope
 $ErrorActionPreference 

@@ -3,7 +3,7 @@
 #input (param) -> output (steam write-/out-, last value)
 
 # never display, always return objects!
-# add second fucntion to display or formatter
+# add second function to display or formatter
 
 # Verb-Noun
 
@@ -51,7 +51,7 @@ function Get-StuffWithParams3
         Function returns terminating error if it is too late
     #>
 
-    param(
+    Param(
         [string]$parameter)
 
     Write-host ("Stuff" + $parameter)
@@ -60,55 +60,6 @@ function Get-StuffWithParams3
 Get-Help Get-StuffWithParams3 
 
 Get-Help Get-StuffWithParams3 -Examples
-
-# output - output stream
-
-function Get-DataR
-{
-    return 1
-    return 2
-    Write-Host "At the end of  Get-DataR"
-}
-
-function Get-DataWO
-{
-    Write-Output 1
-    Write-Output 2
-    Write-Host "At the end of Get-DataWO"
-}
-
-function Get-Data
-{
-    1
-    2
-    Write-Host "At the end of  Get-Data" 
-}
-
-Get-DataR
-Get-DataWO
-Get-Data
-
-#endregion
-
-
-
-#region Advanced, or real-life functions - out of scope
-
-function Get-DataAdvanced
-{
-    [CmdletBinding()]
-    param(     
-    )
-}
-
-Get-DataAdvanced 
-
-# show - and possibilities
-# error, warning variable
-# more on this in 'pipeline'
-
-#endregion
-
 
 
 
@@ -131,7 +82,6 @@ Get-WithMandatoryParameter
 
 function Get-FolderItemsCount
 {
-    [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
         [ValidateScript({ 
@@ -216,6 +166,53 @@ New-ImportantItem -Name 'abc' -IdValue 1
 
 
 
+# output - output stream
+
+function Get-DataR
+{
+    return 1
+    return 2
+    Write-Host "At the end of  Get-DataR"
+}
+
+function Get-DataWO
+{
+    Write-Output 1
+    Write-Output 2
+    Write-Host "At the end of Get-DataWO"
+}
+
+function Get-Data
+{
+    1
+    2
+    Write-Host "At the end of  Get-Data" 
+}
+
+function Get-DataMix
+{
+    Get-DataWO # Write-Output Get-DataWO
+    Get-DataWO # Write-Output Get-DataWO
+    Write-Host "At the end of  Get-DataMix" 
+}
+
+
+$result = Get-DataR
+$result
+
+$result = Get-DataWO
+$result
+
+$result = Get-Data
+$result
+
+$result = Get-DataMix
+$result
+#endregion
+
+
+
+
 #region Rember about Out .. once again!
 # Out-Null to help us!
 
@@ -230,7 +227,7 @@ function Set-NetworkState
 
     if(($state -eq 'Off') -and ($statusCode -gt 1))
     {
-        return $statusCode
+        Write-Output $statusCode
     }
 }
 
@@ -243,7 +240,7 @@ function Get-FromRemote
 
 function Invoke-SomeDataFetch
 {
-    Set-NetworkState -state 'On'
+    Set-NetworkState -state 'On' 
 
     foreach($item in Get-FromRemote)
     {
