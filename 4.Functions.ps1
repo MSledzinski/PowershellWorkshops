@@ -83,15 +83,16 @@ Get-WithMandatoryParameter
 function Get-FolderItemsCount
 {
     param(
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory=$true)]
         [ValidateScript({ 
-            if(-not (Test-Path $_) )
-            {
-                throw "Folder not found [$_]"
-            } else
-            {
-                $true
-            }
+                if(-not (Test-Path $_) )
+                {
+                    throw "Folder not found [$_]"
+                } 
+                else
+                {
+                    $true
+                }
             })]
         [ValidatePattern('^[c|C]:\\')]
         [string]$path
@@ -170,7 +171,7 @@ New-ImportantItem -Name 'abc' -IdValue 1
 
 function Get-DataR
 {
-    return 1
+    return 1 
     return 2
     Write-Host "At the end of  Get-DataR"
 }
@@ -199,6 +200,7 @@ function Get-DataMix
 
 $result = Get-DataR
 $result
+# remark -  'return' - termination of scope
 
 $result = Get-DataWO
 $result
@@ -224,11 +226,12 @@ function Set-NetworkState
 
     # Do some system state change
 
-
+#region Change that came later...
     if(($state -eq 'Off') -and ($statusCode -gt 1))
     {
         Write-Output $statusCode
     }
+#endregion
 }
 
 function Get-FromRemote

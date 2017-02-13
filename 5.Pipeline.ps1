@@ -146,12 +146,12 @@ function Set-ManyThings
     begin
     {
         # I.e. Create file here, or setup Error Action preference..
-        Write-Host "Inside Being, Value is: $Value" -ForegroundColor Green
+        Write-Host "Inside Begin, Value is: $Value" -ForegroundColor Green
     }
 
     process
     {
-        Write-Host "Value is $Value" -ForegroundColor Yellow
+        Write-Host "Process - Value is $Value" -ForegroundColor Yellow
     }
 
     end

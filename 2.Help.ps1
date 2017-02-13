@@ -1,5 +1,4 @@
-﻿# Commands/functions
-# cmdlet -> functions -> modules
+﻿# cmdlet/commands/functions -> modules
 
 # convention, readable, self-describing
 Verb-Noun
@@ -14,9 +13,10 @@ Set-Acl
 # Get-Verb, Set-Verb
 
 # Approved verbs: https://msdn.microsoft.com/en-us/library/ms714428(v=vs.85).aspx
+Start-Process https://msdn.microsoft.com/en-us/library/ms714428.aspx
 
 # Find help
-Get-Command  *Service*
+Get-Command *Service*
 
 Get-Command -Verb Get -Noun *Service*
 

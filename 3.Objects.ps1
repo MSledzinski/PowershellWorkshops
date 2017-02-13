@@ -31,8 +31,8 @@
 $variable = 1
 $variable.GetType()
 
-[int]$variable = 1
-
+[decimal]$variabled = 1
+$variabled = [decimal]1
 
 
 43 -is [int]
@@ -40,6 +40,26 @@ $variable.GetType()
 
 
 43 -as [string]
+(43 -as [string]) -is [string]
+
+
+# bool
+
+$true -is [bool]
+
+$true -eq $false
+
+
+$null
+
+$null -eq $null
+
+
+
+
+$strangeCast = "abc" -as [int]
+Write-Host ($strangeCast -eq $null)
+
 
 # built-in conversions (Ps if very flexible here)
 [string]$str = [char]0x263a
@@ -55,17 +75,7 @@ $value
 
 
 
-# bool
 
-$true -is [bool]
-
-$true -eq $false
-
-
-
-$null
-
-$null -eq $null
 
 # do not have to have the same type - but good practice
 $array = @(1,2,3)
@@ -86,6 +96,27 @@ $hash = @{ A = 1; A = 2}
 [System.Net.Mail.MailMessage]$message
 
 
+# string
+# interpolation
+$a = 111
+Write-Host "A is $a"
+Write-Host 'A is $a'
+Write-Host "A is of type $a.GetType()"
+Write-Host "A is of type $($a.GetType())"
+
+
+
+
+# strongly typed - is often wanted!
+[int]$strongInt = 1234
+$strongInt = "abc now"
+
+
+$strongInt2 = [int]1234
+$strongInt2 = "abc now"
+
+
+
 
 #endregion
 
@@ -98,7 +129,7 @@ $hash = @{ A = 1; A = 2}
 #  [string]  ->     [hash]   ->  [void]
 Get-SomeConfiguration | Set-SomethingBasedOnConfiguration
 
-Get-Process #output is customized, not raw objects
+Get-Process #output is customized, not raw objects - only trasnformation, but returns objects!
 
 
 Get-Process | Get-Member
@@ -117,7 +148,7 @@ Get-Command -Noun Object
 
 # select (powerfull command)
 Get-Process | 
-    Select-Object -Property ID,Name  # | gm
+    Select-Object -Property ID,Name  #| gm
 
 Get-Process | 
     Select-Object -Property ID,Name,*MemorySize  # | gm
@@ -222,11 +253,11 @@ $datetimeValue.DayOfWeek
 $datetimeValue = [datetime]'13/13/2016'
 
 # XML ... BTW it is realy handy
-$contentXml = [xml]"<root><node>abc</node></root>"
+$contentXml = [xml]"<root><data1>abc</data1></root>"
 
 $contentXml.DocumentElement.ChildNodes[0].InnerText
 
-$contentXml.root.node
+$contentXml.root.data1
 
 # verison
 $version = [version]'8.0.1.33'
@@ -253,6 +284,7 @@ $version2.Revision
 # Add-Member method
 
 $object = New-Object –TypeName PSCustomObject
+Get-Member -InputObject $object
 
 Add-Member -InputObject $object –MemberType NoteProperty –Name IntProperty –Value 1 
 
@@ -303,6 +335,8 @@ Get-Process |
 $extendedObject | gm
 
 $extendedObject | Format-Table -Property * -AutoSize
+
+
 
 Get-Process |
 Select-Object -Property Id,Name,StartTime,@{Name="Runtime";Expression={(Get-Date) - $_.StartTime}} |
