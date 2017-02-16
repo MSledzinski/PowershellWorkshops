@@ -23,9 +23,11 @@ Get-Command -Verb Get -Noun *Service*
 
 Get-Help
 
-Get-Help Get-Service -Detailed 
+
 
 Get-Help Get-Service  -Full
+
+Get-Help Get-Service  -Example
 
 
 Get-Command Get-Service -Syntax

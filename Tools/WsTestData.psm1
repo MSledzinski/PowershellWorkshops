@@ -41,10 +41,12 @@ function Remove-TestData
     }    
 }
 
+function Set-Pester {
+    Install-Module Pester
+}
+
 function New-TestData
 {
-    Install-Module Pester
-
     $healthCheckSource = 'HealthCheckSystem'
 
     if ([System.Diagnostics.EventLog]::SourceExists($healthCheckSource) -eq $false)

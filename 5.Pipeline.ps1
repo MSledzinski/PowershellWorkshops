@@ -195,7 +195,8 @@ function ForEach-Object_2
     }
 }
 
-Get-ManyItems | ForEach-Object_2 { Write-host $_ -ForegroundColor Yellow }
+Get-Process | ForEach-Object { Write-host "Processing: $_" -ForegroundColor Yellow }
+Get-Process | ForEach-Object_2 { Write-host "Processing: $_" -ForegroundColor Yellow }
 
 #endregion
 

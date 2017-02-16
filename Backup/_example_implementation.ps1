@@ -24,9 +24,7 @@
         [PSCustomObject][Ordered]@{ AppName = $_.name; RegKey = $_.registryKey }
     }
 
-    $apps = $data.applications | ForEach-Object $jsonToObjectAppMapper
-
-    Write-Output $apps
+    $data.applications | ForEach-Object $jsonToObjectAppMapper | Write-Output
 }
 
 

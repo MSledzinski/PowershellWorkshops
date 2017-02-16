@@ -57,6 +57,12 @@ Write-Host $Error.Count -ForegroundColor Green
 
 
 
+Write-Host $Error.Count -ForegroundColor Green
+
+Get-WithHandlingWE
+
+Write-Host $Error.Count -ForegroundColor Green
+
 # Write-Error - nonterminating errors
 # throw - terminating errors (or -errorAction Stop)
 

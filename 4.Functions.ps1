@@ -192,8 +192,12 @@ function Get-Data
 
 function Get-DataMix
 {
-    Get-DataWO # Write-Output Get-DataWO
-    Get-DataWO # Write-Output Get-DataWO
+    Clear-Host
+
+    Write-Output (Get-DataWO)
+
+    Get-DataWO 
+
     Write-Host "At the end of  Get-DataMix" 
 }
 
@@ -208,8 +212,13 @@ $result
 $result = Get-Data
 $result
 
-$result = Get-DataMix
-$result
+Get-DataMix
+
+# why things displayed in console
+Get-Process # | Use-FormatterIfAny | Print-OnHostStdOut 
+
+
+
 #endregion
 
 
@@ -229,7 +238,7 @@ function Set-NetworkState
 #region Change that came later...
     if(($state -eq 'Off') -and ($statusCode -gt 1))
     {
-        Write-Output $statusCode
+        $statusCode
     }
 #endregion
 }
@@ -250,7 +259,7 @@ function Invoke-SomeDataFetch
         Write-Output $item
     }   
         
-    Set-NetworkState -state 'Off' 
+    Set-NetworkState -state 'Off'
 }
 
 function Interpret-Values

@@ -35,7 +35,7 @@ code $profile
 
 # So how module looks like
 # Template module
-code .\Modules\TemplateModule
+
 
 # Export-ModuleMember -Function 'Get-*','New-*'
 

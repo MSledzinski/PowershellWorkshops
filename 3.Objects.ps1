@@ -50,6 +50,10 @@ $true -is [bool]
 $true -eq $false
 
 
+$false = $true
+
+
+
 $null
 
 $null -eq $null
@@ -151,6 +155,10 @@ Get-Process |
     Select-Object -Property ID,Name  #| gm
 
 Get-Process | 
+    Select-Object -Property ID,Name | gm
+
+
+Get-Process | 
     Select-Object -Property ID,Name,*MemorySize  # | gm
 
 
@@ -197,7 +205,7 @@ Get-Process |
 # foreach
 Get-Process | ForEach-Object { Write-Host "Processing: $($_.Name)" } # | gm # not a lot of sense :)
 
-
+Get-Process | ForEach-Object { Write-Host "Processing: $($_.Name)" } | gm
 
 
 # filter
@@ -347,6 +355,8 @@ notepad 'c:\temp\running_proc_runtime.txt'
 
 #endregion
 
+
+# Classes - remark only
 
 
 
