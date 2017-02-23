@@ -1,7 +1,5 @@
 ﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location $here 
-
-. .\_example_implementation.ps1
+. ($MyInvocation.MyCommand.Path -replace '.Tests','')
 
 Describe "Example test" {
     
@@ -33,6 +31,7 @@ Describe "Example test" {
             $configuration = Get-DeployedApplicationsInformation -ConfigFilePath 'c:\data.json'
 
             $configuration.Length | Should Be  2
+            # and another assertsions here...
         }
     }
 }

@@ -25,6 +25,7 @@ Get-Command -Module SQLPS
 
 Remove-Module SQLPS
 
+# cd C:\Projects\PsWorkshop
 
 Import-Module .\Modules\BadNames\BadNames.psm1
 Import-Module .\Modules\BadNames\BadNames.psm1 -DisableNameChecking -Force

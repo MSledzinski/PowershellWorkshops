@@ -176,6 +176,15 @@ function Get-DataR
     Write-Host "At the end of  Get-DataR"
 }
 
+function Get-DataR2
+{
+    {
+        return 1 
+    } 
+    return 2
+    Write-Host "At the end of  Get-DataR"
+}
+
 function Get-DataWO
 {
     Write-Output 1
@@ -204,7 +213,11 @@ function Get-DataMix
 
 $result = Get-DataR
 $result
+
 # remark -  'return' - termination of scope
+$result = Get-DataR2
+$result
+
 
 $result = Get-DataWO
 $result

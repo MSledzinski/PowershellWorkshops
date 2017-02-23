@@ -215,6 +215,8 @@ Get-Process |
 
 
 
+
+
 # remark
 [ScriptBlock]$hasStartedNoLongerThenAnHourAgo = {
     $_.StartTime -gt (Get-Date).AddHours(-1)
@@ -232,7 +234,9 @@ Get-Process | Measure-Object -Property VirtualMemorySize -Sum
 
 
 # group
-Get-Process | Group-Object -Property Name
+Get-Process | Group-Object -Property Name 
+
+Get-Process | Group-Object -Property Name | gm
 
 
 # tee
@@ -260,12 +264,21 @@ $datetimeValue.DayOfWeek
 
 $datetimeValue = [datetime]'13/13/2016'
 
+(Get-culture).DateTimeFormat.ShortDatePattern 
+
+
+
 # XML ... BTW it is realy handy
+
 $contentXml = [xml]"<root><data1>abc</data1></root>"
+$contentXml.GetType()
 
 $contentXml.DocumentElement.ChildNodes[0].InnerText
 
 $contentXml.root.data1
+
+
+
 
 # verison
 $version = [version]'8.0.1.33'
@@ -273,6 +286,7 @@ $version = [version]'8.0.1.33'
 $version.Revision
 
 $version = [version]'8.0.1aas.3aaa3'
+
 
 
 # exsiting types that can be 'accelerated'
@@ -352,6 +366,11 @@ Tee-Object 'c:\temp\running_proc_runtime.txt'
 
 notepad 'c:\temp\running_proc_runtime.txt'
 
+
+# 'shortcuts'
+Get-Process | ? { $_.Name -like '*sql*' } # Where-Object
+
+Get-Process | % Name # ForEach-Object { return $_.Name }  => Select-Object -ExpandProperty Name
 
 #endregion
 

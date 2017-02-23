@@ -35,7 +35,12 @@ Get-Command Get-Service -Syntax
 
 help #alias
 
-# if something is unclear - google it :)
+Get-Alias
+Set-Alias
+
+# prefer not to use abbrevs :)
+
+# if something is unclear - google it 
 
 
 # sometimes detailed help missing

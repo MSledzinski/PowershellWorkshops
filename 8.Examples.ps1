@@ -17,6 +17,10 @@ Out-Null
 
 Out-File
 
+# not ps, but handy
+Get-Process | Select-Object -First 1| % Path | clip
+
+
 
 # join-path to avoid checking for /
 Join-Path 'c:\temp\' '\folder\aa.txt'
