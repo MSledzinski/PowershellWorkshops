@@ -178,9 +178,10 @@ function Get-DataR
 
 function Get-DataR2
 {
-    {
+    $temp = {
         return 1 
     } 
+
     return 2
     Write-Host "At the end of  Get-DataR"
 }
@@ -300,3 +301,22 @@ Invoke-SomeDataFetch | Interpret-Values
 
 #endregion
 
+# controlled by preference variables
+
+function Set-VerboseThings
+{
+    [CmdletBinding()]
+    param()
+
+    Write-Debug "from debug pipe..."
+    Write-Verbose "from verbose pipie..."
+
+    Write-Output "from output pipe..."
+    Write-Warning "be careful"
+}
+
+Set-VerboseThings 
+Set-VerboseThings -Verbose
+Set-VerboseThings -Debug
+
+#endregion

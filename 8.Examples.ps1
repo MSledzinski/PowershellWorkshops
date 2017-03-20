@@ -170,29 +170,3 @@ Register-ScheduledJob -Name PsAppErrorEventsCheck -Trigger $trigger -ScriptBlock
 }
 
 
-
-
-
-
-# ErrorPipeline, WarningPipeline, VerbosePipeline, DebugPipeline
-# not all cmdlets designed to use it
-
-# controlled by preference variables
-
-function Set-VerboseThings
-{
-    [CmdletBinding()]
-    param()
-
-    Write-Debug "from debug pipe..."
-    Write-Verbose "from verbose pipie..."
-
-    Write-Output "from output pipe..."
-    Write-Warning "be careful"
-}
-
-Set-VerboseThings 
-Set-VerboseThings -Verbose
-Set-VerboseThings -Debug
-
-#endregion
