@@ -170,3 +170,7 @@ Register-ScheduledJob -Name PsAppErrorEventsCheck -Trigger $trigger -ScriptBlock
 }
 
 
+# include
+. \scripts.ps1 # same scope
+
+& .\script.ps1 # another scope
