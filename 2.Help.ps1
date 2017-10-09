@@ -39,6 +39,7 @@ Get-Alias
 Set-Alias
 
 # prefer not to use abbrevs :)
+# watch out for curl, ls
 
 # if something is unclear - google it 
 

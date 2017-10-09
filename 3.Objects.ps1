@@ -29,11 +29,16 @@
 # [PSCustomObject]
 
 $variable = 1
-$variable.GetType()
+$variable.GetType().FullName
+
+
+(4 +5) / 15
 
 [decimal]$variabled = 1
-$variabled = [decimal]1
+$variabled.GetType().FullName
 
+$variabled = [decimal]1
+$variabled.GetType().FullName
 
 43 -is [int]
 43 -is [string]
@@ -61,8 +66,8 @@ $null -eq $null
 
 
 
-$strangeCast = "abc" -as [int]
-Write-Host ($strangeCast -eq $null)
+$cast = "abc" -as [int]
+Write-Host ($cast -eq $null)
 
 
 # built-in conversions (Ps if very flexible here)
@@ -92,7 +97,7 @@ $hash = @{ A = 1
            B = 2 }
 
 
-$hash = @{ A = 1; A = 2}
+$hash = @{ A = 1; B = 2}
 
 
 
@@ -264,6 +269,9 @@ $datetimeValue.DayOfWeek
 
 $datetimeValue = [datetime]'13/13/2016'
 
+([datetime]'2017-10-01').AddDays(17).DayOfWeek
+
+
 (Get-culture).DateTimeFormat.ShortDatePattern 
 
 
@@ -319,6 +327,13 @@ $object
 
 $object | gm | FL
 
+# access property
+$property = 'A'
+$object.$property
+
+$object.PSObject.TypeNames.Insert(0,"My.PSWorkshop1")
+$object.PSObject.TypeNames
+
 
 # From hashtable
 # PSCustomObject and PsObject - are aliases for the same type, almost... PSCustomObject is more clever during creation
@@ -342,7 +357,6 @@ $object2 | Format-Table -AutoSize
 
 $object3 = [PSCustomObject][Ordered]@{ A=1;B=2;C="text" } #on hashtable only
 $object3 | Format-Table -AutoSize
-
 
 
 
@@ -376,8 +390,68 @@ Get-Process | % Name # ForEach-Object { return $_.Name }  => Select-Object -Expa
 
 
 # Classes - remark only
+class ImportantData
+{
+    # Properties
+    [String] $Alias
+    [int32] $Value
+
+    # Static Properties
+    static [String] $ValueStatic = "DevOps Library"
+
+    # Hidden Properties
+    hidden [String] $RealName
+
+    # ImportantData Constructor
+    ImportantData ()
+    {
+    }
+
+    # Constructor
+    ImportantData ([String] $Alias, [int32] $Value)
+    {
+        $this.Alias = $Alias
+        $this.HitPoints = $Value
+    }
+
+    # Method
+    [String] getAlias()
+    {
+       return $this.Alias
+    }
+
+    # Static Method
+    static [String] getAnotherData()
+    {
+        return [ImportantData]::ValueStatic + "abc";
+    }
+
+    # ToString Method
+    [String] ToString()
+    {
+        return $this.Alias + ":" + $this.Value
+    }
+}
 
 
-
-# Exercise
+# Exercise 1
 # find all services that are running and then return only count
+
+
+
+# Exercise 2
+# replace version tag
+$xmlcontent = @"
+<?xml version="1.0" encoding="UTF-8"?>
+<Versions>
+    <App>
+        <Hash>4398893bcaa9324</Hash>
+        <Version>1.0.4.15</Version>
+        <Updated>2016-10-10</Version>
+    </App>
+</Versions>
+"@
+
+
+
+# Reminder: Select-Xml (not needed here)

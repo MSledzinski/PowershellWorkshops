@@ -1,5 +1,5 @@
-﻿$here = Split-Path -Parent $PSScriptRoot
-. ($MyInvocation.MyCommand.Path -replace '.Tests','')
+﻿
+. ((Split-Path -Parent $PSScriptRoot) -replace '.Tests','')
 
 Describe "Example test" {
     
