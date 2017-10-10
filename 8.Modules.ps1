@@ -5,7 +5,7 @@
 # Why use modules?
 # easier function managment
 # - where are your scripts.. 
-# - portability (deliver scirpts to customer - not bunch of scirpts)
+# - portability (deliver scirpts to customer - not bunch of scripts)
 # - share on repository etc.
 
 $env:PSModulePath -split ";"
@@ -48,3 +48,16 @@ code $profile
 
 New-ModuleManifest C:\Temp\NewModule.psd1 
 
+# own repository
+Import-Module PowerShellGet
+
+$repo = @{
+    Name = 'MyRepository'
+    SourceLocation = $Path
+    PublishLocation = $Path
+    InstallationPolicy = 'Trusted'
+}
+Register-PSRepository @repo
+
+
+Publish-Module -Name MyModule -Repository MyRepository -Verbose

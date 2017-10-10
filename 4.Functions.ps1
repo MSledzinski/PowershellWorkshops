@@ -129,7 +129,7 @@ Set-VMMemoryLimit "xyz"
 #endregion
 
 
-#region Parameters Set - out of scope
+#region Parameters Set 
 
 function New-ImportantItem
 {
@@ -163,6 +163,7 @@ New-ImportantItem -Name 'abc'
 New-ImportantItem -IdValue 1 -GenericName 'z'
 
 New-ImportantItem -Name 'abc' -IdValue 1
+
 #endregion
 
 

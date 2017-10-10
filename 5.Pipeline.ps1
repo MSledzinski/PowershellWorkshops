@@ -17,7 +17,7 @@ function Get-VirtualMachineConfiguration
     return [PSCustomObject]@{ Name = $Name; VHost = 'HyperV1'; Type = 'VM' }
 }
 
-function Set-VirtualMachineData1_NVP
+function Set-VirtualMachineData1_NoPipe
 {
 
     param
@@ -109,7 +109,7 @@ function Set-VirtualMachineData3
 Get-VirtualMachineConfiguration -Name 'Machine1' | Get-Member
 
 # step 1 - has input with type
-Get-VirtualMachineConfiguration -Name 'Machine1' | Set-VirtualMachineData1_NVP
+Get-VirtualMachineConfiguration -Name 'Machine1' | Set-VirtualMachineData1_NoPipe
 
 Get-VirtualMachineConfiguration -Name 'Machine1' | Set-VirtualMachineData1
 
@@ -126,8 +126,6 @@ Get-VirtualMachineConfiguration -Name 'Machine1' | Set-VirtualMachineData2
 #                          -> FileInfo ->
 Get-Item 'c:\Windows\notepad.exe' | Set-VirtualMachineData3 
 
-
-# Get-Service | our-function-here with proper params
 
 #endregion
 
@@ -166,12 +164,63 @@ function Get-ManyItems
     foreach($i in 1..3)
     {
         sleep -Seconds 3
-        Write-Host "Processed value: $i - sending to output pipe" -ForegroundColor DarkRed
+        Write-Host "Processed value: $i - sending to output pipe" -ForegroundColor Cyan
         Write-Output $i
     }
 }
 
 Get-ManyItems | Set-ManyThings
+
+
+
+
+# pipeline yielding one by one
+function Get-Fast
+{
+    foreach($i in 1..5)
+    {  
+        Write-Host "[Fast] Sending $i" -ForegroundColor Cyan
+        sleep -Seconds 1
+        Write-Output $i
+        Write-Host "[Fast] Sent $i" -ForegroundColor Cyan
+    }
+}
+
+function Get-Slower
+{
+    param
+    (
+        [Parameter(Mandatory,ValueFromPipeline)]
+        [int]$Value
+    )
+    
+   process
+   {
+        Write-Host "[Slower] $Value" -ForegroundColor Green
+        sleep -Seconds 5
+        Write-Output ($Valuw + 1)
+   }
+}
+
+function Set-Things
+{
+    param
+    (
+        [Parameter(Mandatory,ValueFromPipeline)]
+        [int]$Value
+    )
+    
+   process
+   {
+        Write-Host "[Set] Got $Value" -ForegroundColor Yellow
+   }
+}
+
+
+Get-Fast | Get-Slower | Set-Things
+
+# end
+
 
 
 

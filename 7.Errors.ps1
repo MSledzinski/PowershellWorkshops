@@ -21,7 +21,7 @@ function Get-WithHandling
     catch
     {
         Write-Host "Got Exception"
-        $_
+        Write-Error $_.Exception.Message
     }
     finally
     {
@@ -41,7 +41,6 @@ function Get-WithHandlingWE
     catch
     {
         Write-Host "Got Exception"
-        $_
     }
     finally
     {
@@ -92,7 +91,7 @@ function Get-WithoutHandling
 
         process
         {
-            $ErrorActionPreference = 'Ignore'
+            #$ErrorActionPreference = 'Ignore'
             Get-Service $Name  |  #or Get-Service $Name -ErrorAction Continue
                 Select-Object -Property Name,Status
         }

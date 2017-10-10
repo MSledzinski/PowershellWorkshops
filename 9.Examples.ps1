@@ -37,8 +37,8 @@ Get-ChildItem -Path Cert:\LocalMachine -Recurse |
 
 
 
-# Working with SQL
-Import-Module SQLPS
+# Working with SQL  - IMPORTANT: better use standalone SQLServer ps module
+Import-Module SQLPS 
 
 Get-Command -Module SQLPS
 
