@@ -1,5 +1,6 @@
 ﻿
-. ((Split-Path -Parent $PSScriptRoot) -replace '.Tests','')
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+. "$here\_example_implementation.ps1"
 
 Describe "Example test" {
     
